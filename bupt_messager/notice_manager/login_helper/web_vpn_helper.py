@@ -10,10 +10,37 @@ from .login_helper import LoginHelper
 class WebVPNHelper(LoginHelper):
     def __init__(self, http_client):
         self.allow_error = WEB_VPN_ALLOW_ERROR
-        soup_checker = lambda soup: soup.title.text == '校园访问校园网门户' or (self.allow_error and 'Error' in soup.title.text)
-        super().__init__(http_client=http_client, soup_checker=soup_checker)
+        super().__init__(http_client=http_client)
         if TESSERACT_CMD:
             pytesseract.pytesseract.tesseract_cmd = TESSERACT_CMD
+
+    def response_checker(self, login_response):
+        correct_title = '校园访问校园网门户'
+        if login_response.status_code == 200:
+            try:
+                login_soup = BeautifulSoup(login_response.text, 'lxml')
+                if not login_soup.title:
+                    if self.allow_error:
+                        return None
+                    else:
+                        return 'Login result: No title detected.'
+                if login_soup.title.text == correct_title:
+                    return None
+                else:
+                    return f'Login result: `{login_soup.title.text}`'
+            except KeyboardInterrupt as identifier:
+                logging.warning('Catch KeyboardInterrupt when logging into web VPN.')
+                raise identifier
+            except Exception as identifier:
+                if self.allow_error:
+                    return None
+                else:
+                    return identifier
+        else:
+            if self.allow_error:
+                return None
+            else:
+                return f'Login response: `{login_response.status_code}`'
 
     @staticmethod
     def read_webvpn_captcha(im_raw):

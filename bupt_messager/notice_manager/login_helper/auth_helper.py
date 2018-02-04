@@ -5,8 +5,12 @@ from .login_helper import LoginHelper
 
 class AuthHelper(LoginHelper):
     def __init__(self, http_client):
-        soup_checker = lambda soup: soup.title.text == '欢迎访问信息服务门户'
-        super().__init__(http_client=http_client, soup_checker=soup_checker)
+        super().__init__(http_client=http_client)
+
+    def response_checker(self, login_response):
+        correct_title = '欢迎访问信息服务门户'
+        login_soup = BeautifulSoup(login_response.text, 'lxml')
+        return login_soup.title.text == correct_title
 
     def _login(self):
         login_url = r'https://auth.bupt.edu.cn/authserver/login?service=http%3A%2F%2Fmy.bupt.edu.cn%2Flogin.portal'

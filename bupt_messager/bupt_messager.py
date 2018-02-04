@@ -26,5 +26,5 @@ class BUPTMessager(object):
 
     def stop(self):
         self.notice_manager.stop()
-        self.notice_manager.join()
         self.bot_handle.stop()
+        self.notice_manager.join()

@@ -33,6 +33,7 @@ class NoticeManager(threading.Thread):
 
     def stop(self):
         self._stop_event.set()
+        logging.info('NoticeManager: set stop signal.')
 
     def update(self):
         update_counter = 0

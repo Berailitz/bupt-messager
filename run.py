@@ -3,6 +3,7 @@
 # -*- coding: UTF-8 -*-
 
 import logging
+import threading
 from bupt_messager.bupt_messager import BUPTMessager
 
 def main():
@@ -10,8 +11,9 @@ def main():
     try:
         bupt_messager.run()
     except KeyboardInterrupt:
-        logging.warning('Messager is stopping due to keyboard interrupt.')
+        logging.warning('Messager is going to stop due to keyboard interrupt.')
         bupt_messager.stop()
+        logging.info(f'Messager: stooped.')
 
 if __name__ == '__main__':
     main()

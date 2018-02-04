@@ -23,7 +23,9 @@ class NoticeManager(threading.Thread):
         self.auth_helper.do_login()
 
     def run(self):
-        while not self._stop_event.wait(NOTICE_CHECK_INTERVAL):
+        is_first_run = True
+        while is_first_run or not self._stop_event.wait(NOTICE_CHECK_INTERVAL):
+            is_first_run = False
             logging.info('NoticeManager: updating.')
             self.update()
         logging.info('NoticeManager: stopped.')

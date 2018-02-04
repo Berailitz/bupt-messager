@@ -5,8 +5,8 @@ from ..sql_handle import SQLHandle
 from .backend import Backend
 
 class BotHandle(object):
-    def __init__(self):
-        self.sql_handle = SQLHandle()
+    def __init__(self, sql_manager):
+        self.sql_handle = SQLHandle(sql_manager)
         self.backend = Backend(self.sql_handle)
         self.updater = Updater(token=BOT_TOKEN)
         dispatcher = self.updater.dispatcher

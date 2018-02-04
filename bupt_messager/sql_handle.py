@@ -6,6 +6,15 @@ from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 from .config import SQLALCHEMY_DATABASE_URI
 from .models import Attachment, Base, Chat, Notification
 
+def use_session():
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kw):
+            with args[0].sql_manager.create_session() as my_session:
+                return func(my_session, *args[1:], **kw)
+        return wrapper
+    return decorator
+
 class SQLManager(object):
     def __init__(self):
         Notification.attachments = relationship("Attachment", order_by=Attachment.id, back_populates="notice")
@@ -36,16 +45,6 @@ class SQLHandle(object):
         else:
             logging.warning('No `SQLManager` specified, another `scoped_session` will be opened.')
             self.sql_manager = SQLManager()
-
-    @staticmethod
-    def use_session():
-        def decorator(func):
-            @functools.wraps(func)
-            def wrapper(*args, **kw):
-                with args[0].sql_manager.create_session() as my_session:
-                    return func(my_session, *args[1:], **kw)
-            return wrapper
-        return decorator
 
     @use_session()
     def is_new_notice(my_session, notice_dict):

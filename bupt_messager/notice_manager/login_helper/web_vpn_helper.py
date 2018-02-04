@@ -4,15 +4,16 @@ from io import BytesIO
 import pytesseract
 from bs4 import BeautifulSoup
 from PIL import Image
-from ...config import WEB_VPN_ALLOW_ERROR, WEB_VPN_PASSWORD, WEB_VPN_USERNAME
+from ...config import TESSERACT_CMD, WEB_VPN_ALLOW_ERROR, WEB_VPN_PASSWORD, WEB_VPN_USERNAME
 from .login_helper import LoginHelper
 
 class WebVPNHelper(LoginHelper):
-    def __init__(self, http_client, tesseract_cmd):
+    def __init__(self, http_client):
         self.allow_error = WEB_VPN_ALLOW_ERROR
         soup_checker = lambda soup: soup.title.text == '校园访问校园网门户' or (self.allow_error and 'Error' in soup.title.text)
         super().__init__(http_client=http_client, soup_checker=soup_checker)
-        pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+        if TESSERACT_CMD:
+            pytesseract.pytesseract.tesseract_cmd = TESSERACT_CMD
 
     @staticmethod
     def read_webvpn_captcha(im_raw):

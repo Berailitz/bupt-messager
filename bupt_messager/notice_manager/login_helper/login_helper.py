@@ -29,12 +29,12 @@ class LoginHelper(object):
                     logging.info(f'LoginHelper: Result: Success.')
                     return login_response
                 else:
-                    logging.warning(f'LoginHelper: ({login_counter} / {self.max_attempt - 1}) Error `{login_result}`.')
+                    logging.warning(f'LoginHelper: ({login_counter + 1} / {self.max_attempt}) Error `{login_result}`.')
             except KeyboardInterrupt as identifier:
                 logging.warning('LoginHelper: Catch KeyboardInterrupt when logging in.')
                 raise identifier
             except Exception as identifier:
-                logging.error(f'LoginHelper: ({login_counter} / {self.max_attempt - 1}) Error when logging in: {identifier}')
+                logging.error(f'LoginHelper: ({login_counter + 1} / {self.max_attempt}) Error when logging in: {identifier}')
                 if login_counter == self.max_attempt - 1:
                     logging.error(f'LoginHelper: Cannot login: `{error_notice}`.')
                     raise identifier

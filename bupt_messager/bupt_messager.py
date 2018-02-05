@@ -1,5 +1,6 @@
 import logging
 import os
+import signal
 import threading
 import time
 from .mess import get_current_time, set_logger
@@ -18,6 +19,8 @@ class BUPTMessager(object):
         self.bot_handle = BotHandle(sql_manager=sql_manager, bot=queued_bot)
         self.bot_handle.add_handler()
         self.log_folder = 'log'
+        signal.signal(signal.SIGINT, self.stop)
+        signal.signal(signal.SIGTERM, self.stop)
 
     def set_logger(self):
         if not os.path.exists(self.log_folder):

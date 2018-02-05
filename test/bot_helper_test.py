@@ -7,7 +7,7 @@ from ..bupt_messager.queued_bot import create_queued_bot
 from ..bupt_messager.sql_handle import SQLHandle
 from ..bupt_messager.mess import get_current_time, set_logger
 
-def bot_helper_test(http_client=None):
+def bot_helper_test():
     sample_notice = {
         'summary': 'This is a summary.',
         'title': 'This is a Title.',

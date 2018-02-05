@@ -29,24 +29,24 @@ class HTTPClient:
         for attempt_times in range(max_retries):
             try:
                 post_response = self.session.post(url, headers=self.create_headers(referer), data=data, timeout=timeout, **kw)
-                break
+                post_response.encoding = "utf-8"
+                return post_response
             except requests.Timeout as identifier:
                 attempt_times += 1
                 logging.warning(f'Failed to POST `{data}` to `{url}`: {identifier}')
-        post_response.encoding = "utf-8"
-        return post_response
+        raise requests.Timeout(f'Max POST retries exceeded with url: {url}')
 
     def get(self, url, timeout=10, max_retries=10, referer='http://my.bupt.edu.cn/index.portal', **kw):
         """customized get"""
         for attempt_times in range(max_retries):
             try:
                 get_response = self.session.get(url, headers=self.create_headers(referer), timeout=timeout, **kw)
-                break
+                get_response.encoding = "utf-8"
+                return get_response
             except requests.Timeout as identifier:
                 attempt_times += 1
                 logging.warning(f'Failed to GET `{url}`: {identifier}')
-        get_response.encoding = "utf-8"
-        return get_response
+        raise requests.Timeout(f'Max GET retries exceeded with url: {url}')
 
     def refresh_session(self, session=None):
         self.session = session or requests.Session()

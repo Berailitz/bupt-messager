@@ -45,7 +45,9 @@ class BUPTMessager(object):
         self.set_logger()
         self._run()
 
-    def stop(self):
+    def stop(self, signum=None, frame=None):
+        if signum:
+            logging.warning(f'BUPTMessager: Stop due to signal: {signum}')
         self.notice_manager.stop()
         self.bot_handle.stop()
         self.notice_manager.join()

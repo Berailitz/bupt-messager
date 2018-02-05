@@ -14,6 +14,7 @@ def bot_handle_test():
     bot_handle = BotHandle(sql_manager=sql_manager, bot=queued_bot)
     bot_handle.add_handler()
     bot_handle.start()
+    return bot_handle
 
 if __name__ == '__main__':
     bot_handle_test()

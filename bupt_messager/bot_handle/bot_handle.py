@@ -24,7 +24,8 @@ class BotHandle(object):
         dispatcher.add_handler(yo_handler)
 
     def start(self):
-        self.updater.start_polling()
+        self.updater.start_webhook(port=9051, url_path='bupt_messager')
+        self.updater.bot.set_webhook(webhook_url='https://bot.ohhere.xyz/bupt_messager')
         logging.info('Bot: started.')
 
     def stop(self):

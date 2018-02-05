@@ -16,6 +16,7 @@ class BUPTMessager(object):
         queued_bot = create_queued_bot()
         self.notice_manager = create_notice_manager(sql_manager=sql_manager, bot=queued_bot)
         self.bot_handle = BotHandle(sql_manager=sql_manager, bot=queued_bot)
+        self.bot_handle.add_handler()
         self.log_folder = 'log'
 
     def set_logger(self):

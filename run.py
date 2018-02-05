@@ -4,6 +4,7 @@
 
 import logging
 import sys
+import threading
 from bupt_messager.bupt_messager import BUPTMessager
 
 def main():
@@ -17,6 +18,7 @@ def main():
         logging.warning('Messager is going to stop due to keyboard interrupt.')
         bupt_messager.stop()
         logging.info(f'Messager: stooped.')
+        logging.info(f'Left workers: {threading.enumerate()}')
 
 if __name__ == '__main__':
     main()

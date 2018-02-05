@@ -26,15 +26,15 @@ class LoginHelper(object):
                 login_response = self._login()
                 login_result = self.response_checker(login_response)
                 if not login_result:
-                    logging.info(f'LoginHelper: result: success.')
+                    logging.info(f'LoginHelper: Result: Success.')
                     return login_response
                 else:
-                    logging.warning(f'LoginHelper: error `{login_result}`. ({login_counter} / {self.max_attempt})')
+                    logging.warning(f'LoginHelper: Error `{login_result}`. ({login_counter} / {self.max_attempt})')
             except KeyboardInterrupt as identifier:
                 logging.warning('LoginHelper: Catch KeyboardInterrupt when logging in.')
                 raise identifier
             except Exception as identifier:
-                logging.error(f'LoginHelper: Unexcepted error occered when logging in: {identifier}')
+                logging.error(f'LoginHelper: ({login_counter} / {self.max_attempt}) Error when logging in: {identifier}')
                 if login_counter == self.max_attempt - 1:
                     logging.error(f'LoginHelper: Cannot login: `{error_notice}`.')
                     raise identifier

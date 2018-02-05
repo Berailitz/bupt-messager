@@ -5,7 +5,7 @@ from urllib.parse import urlsplit, parse_qs
 from bs4 import BeautifulSoup
 from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH
-from .bot_helper import BotHelper
+from .bot_helper.bot_helper import BotHelper
 from .login_helper.auth_helper import AuthHelper
 from .login_helper.web_vpn_helper import WebVPNHelper
 

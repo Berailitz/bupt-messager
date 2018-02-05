@@ -8,7 +8,7 @@ from ..bupt_messager.sql_handle import SQLHandle
 from ..bupt_messager.mess import get_current_time, set_logger
 
 def notice_manager_test(http_client=None):
-    set_logger(f'log/test/login_test_{get_current_time}.txt', console_level=logging.DEBUG, file_level=logging.DEBUG)
+    set_logger(f'log/test/notice_manager_test_{get_current_time}.txt', console_level=logging.DEBUG, file_level=logging.DEBUG)
     http_client = http_client or HTTPClient()
     sql_handle = SQLHandle()
     notice_manager = NoticeManager(http_client, sql_handle)

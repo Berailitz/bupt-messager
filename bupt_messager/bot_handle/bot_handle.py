@@ -1,5 +1,6 @@
 import logging
 from telegram.ext import Updater, CommandHandler
+from ..config import WEB_HOOK_PORT, WEB_HOOK_URL, WEB_HOOK_URL_PATH
 from ..sql_handle import SQLHandle
 from .bot_backend import BotBackend
 
@@ -24,8 +25,8 @@ class BotHandle(object):
         dispatcher.add_handler(yo_handler)
 
     def start(self):
-        self.updater.start_webhook(port=9051, url_path='bupt_messager')
-        self.updater.bot.set_webhook(webhook_url='https://bot.ohhere.xyz/bupt_messager')
+        self.updater.start_webhook(port=WEB_HOOK_PORT, url_path=WEB_HOOK_URL_PATH)
+        self.updater.bot.set_webhook(url=WEB_HOOK_URL)
         logging.info('Bot: started.')
 
     def stop(self):

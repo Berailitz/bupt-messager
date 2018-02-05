@@ -10,3 +10,6 @@ WEB_VPN_PASSWORD = 'password'
 AUTH_USERNAME = 'username'
 AUTH_PASSWORD = 'password'
 TESSERACT_CMD = None
+WEB_HOOK_PORT = '5000'
+WEB_HOOK_URL = 'https://domain.tdl/path'
+WEB_HOOK_URL_PATH = 'path'

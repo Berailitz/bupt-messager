@@ -5,7 +5,7 @@ import threading
 import time
 from .mess import get_current_time, set_logger
 from .notice_manager.app import create_notice_manager
-from .bot_handle.bot_handle import BotHandle
+from .bot_handler.bot_handler import BotHandler
 from .config import MESSAGER_PRINT_INTERVAL
 from .queued_bot import create_queued_bot
 from .sql_handle import SQLManager
@@ -16,8 +16,8 @@ class BUPTMessager(object):
         self.debug_mode = debug_mode
         queued_bot = create_queued_bot()
         self.notice_manager = create_notice_manager(sql_manager=sql_manager, bot=queued_bot)
-        self.bot_handle = BotHandle(sql_manager=sql_manager, bot=queued_bot)
-        self.bot_handle.add_handler()
+        self.bot_handler = BotHandler(sql_manager=sql_manager, bot=queued_bot)
+        self.bot_handler.add_handler()
         self.log_folder = 'log'
         signal.signal(signal.SIGINT, self.stop)
         signal.signal(signal.SIGTERM, self.stop)
@@ -36,7 +36,7 @@ class BUPTMessager(object):
 
     def _run(self):
         self.notice_manager.start()
-        self.bot_handle.start()
+        self.bot_handler.start()
         while True:
             logging.info(f'Workers: {threading.enumerate()}')
             time.sleep(MESSAGER_PRINT_INTERVAL)
@@ -49,5 +49,5 @@ class BUPTMessager(object):
         if signum:
             logging.warning(f'BUPTMessager: Stop due to signal: {signum}')
         self.notice_manager.stop()
-        self.bot_handle.stop()
+        self.bot_handler.stop()
         self.notice_manager.join()

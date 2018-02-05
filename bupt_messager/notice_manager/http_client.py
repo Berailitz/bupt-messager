@@ -1,5 +1,6 @@
 import logging
 import requests
+from ..config import HTTP_CLIENT_MAX_RETRIES, HTTP_CLIENT_REFERER, HTTP_CLIENT_TIME_OUT
 
 class HTTPClient:
     def __init__(self, session=None):
@@ -24,7 +25,7 @@ class HTTPClient:
         }
         return headers
 
-    def post(self, url, data, timeout=10, max_retries=10, referer='http://my.bupt.edu.cn/index.portal', **kw):
+    def post(self, url, data, timeout=HTTP_CLIENT_TIME_OUT, max_retries=HTTP_CLIENT_MAX_RETRIES, referer=HTTP_CLIENT_REFERER, **kw):
         """customized post"""
         for attempt_times in range(max_retries):
             try:
@@ -36,7 +37,7 @@ class HTTPClient:
                 logging.warning(f'Failed to POST `{data}` to `{url}`: {identifier}')
         raise requests.Timeout(f'Max POST retries exceeded with url: {url}')
 
-    def get(self, url, timeout=10, max_retries=10, referer='http://my.bupt.edu.cn/index.portal', **kw):
+    def get(self, url, timeout=HTTP_CLIENT_TIME_OUT, max_retries=HTTP_CLIENT_MAX_RETRIES, referer=HTTP_CLIENT_REFERER, **kw):
         """customized get"""
         for attempt_times in range(max_retries):
             try:

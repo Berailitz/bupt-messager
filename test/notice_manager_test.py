@@ -13,7 +13,7 @@ def notice_manager_test(http_client=None):
     http_client = http_client or HTTPClient()
     sql_handle = SQLHandle()
     queued_bot = create_queued_bot()
-    notice_manager = NoticeManager(http_client, sql_handle, queued_bot)
+    notice_manager = NoticeManager(sql_handle=sql_handle, bot=queued_bot, http_client=http_client)
     notice_manager._login()
     notice_manager.update()
 

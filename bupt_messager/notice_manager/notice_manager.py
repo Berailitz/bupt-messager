@@ -2,8 +2,9 @@ import logging
 import threading
 import time
 from urllib.parse import urlsplit, parse_qs
+import requests
 from bs4 import BeautifulSoup
-from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL
+from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL, NOTICE_UPDATE_ERROR_SLEEP_TIME
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH
 from .bot_helper import BotHelper
 from .http_client import HTTPClient
@@ -30,8 +31,15 @@ class NoticeManager(threading.Thread):
             is_first_run = False
             logging.info('NoticeManager: updating.')
             self.http_client.refresh_session()
-            self._login()
-            self.update()
+            try:
+                self._login()
+                self.update()
+            except Exception as identifier:
+                logging.exception(identifier)
+                logging.error(f'NoticeManager: error when updating: {identifier}')
+                logging.info(f'NoticeManager: sleep for {NOTICE_UPDATE_ERROR_SLEEP_TIME} seconds.')
+                time.sleep(NOTICE_UPDATE_ERROR_SLEEP_TIME)
+
         logging.info('NoticeManager: stopped.')
         self._stop_event.clear()
 

@@ -8,9 +8,9 @@ class AuthHelper(LoginHelper):
         super().__init__(http_client=http_client)
 
     def response_checker(self, login_response):
-        correct_title = '欢迎访问信息服务门户'
+        correct_titles = ['欢迎访问信息服务门户', 'CAS – wisedu']
         login_soup = BeautifulSoup(login_response.text, 'lxml')
-        if login_soup.title.text == correct_title:
+        if login_soup.title.text in correct_titles:
             logging.info(f'Auth login: title `{login_soup.title.text}`')
             return None
         else:

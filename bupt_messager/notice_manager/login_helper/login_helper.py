@@ -42,11 +42,6 @@ class LoginHelper(object):
                 time.sleep(self.wait_intervel)
         return False
 
-    def do_login(self, http_client=None, error_notice=None, max_attempt=None):
-        self.max_attempt = max_attempt or self.max_attempt
-        try:
-            self.http_client = http_client or self.http_client
-        except AttributeError as attr_error:
-            raise ValueError(f'No `success_title` or `http_client` specified: {attr_error.args}')
+    def do_login(self, error_notice=None):
         if not self.try_login():
-            raise PermissionError(f'Cannot login: {error_notice}')
+            raise PermissionError(f'Cannot login: `{error_notice}`.')

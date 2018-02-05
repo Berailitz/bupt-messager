@@ -47,3 +47,7 @@ class HTTPClient:
                 logging.warning(f'Failed to GET `{url}`: {identifier}')
         get_response.encoding = "utf-8"
         return get_response
+
+    def refresh_session(self, session=None):
+        self.session = session or requests.Session()
+        logging.warning('HTTPClient: session refreshed.')

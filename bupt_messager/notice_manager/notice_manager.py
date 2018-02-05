@@ -6,13 +6,14 @@ from bs4 import BeautifulSoup
 from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH
 from .bot_helper import BotHelper
+from .http_client import HTTPClient
 from .login_helper.auth_helper import AuthHelper
 from .login_helper.web_vpn_helper import WebVPNHelper
 
 class NoticeManager(threading.Thread):
-    def __init__(self, http_client, sql_handle=None, bot=None):
+    def __init__(self, http_client=None, sql_handle=None, bot=None):
         super().__init__()
-        self.http_client = http_client
+        self.http_client = http_client or HTTPClient()
         self.sql_handle = sql_handle
         self.webvpn_helper = WebVPNHelper(self.http_client)
         self.auth_helper = AuthHelper(self.http_client)
@@ -20,14 +21,15 @@ class NoticeManager(threading.Thread):
         self._stop_event = threading.Event()
 
     def _login(self):
-        self.webvpn_helper.do_login()
-        self.auth_helper.do_login()
+        self.webvpn_helper.do_login(error_notice='Web VPN (webvpn.bupt.edu.cn)')
+        self.auth_helper.do_login(error_notice='Auth (my.bupt.edu.cn)')
 
     def run(self):
         is_first_run = True
         while is_first_run or not self._stop_event.wait(NOTICE_CHECK_INTERVAL):
             is_first_run = False
             logging.info('NoticeManager: updating.')
+            self.http_client.refresh_session()
             self._login()
             self.update()
         logging.info('NoticeManager: stopped.')

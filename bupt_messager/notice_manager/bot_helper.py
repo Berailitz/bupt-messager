@@ -1,6 +1,6 @@
 import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from ..queued_bot import queued_bot
+from ..bupt_messager import queued_bot
 
 class BotHelper(object):
     def __init__(self, sql_handle):

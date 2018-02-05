@@ -3,11 +3,15 @@
 # -*- coding: UTF-8 -*-
 
 import logging
+import sys
 import threading
 from bupt_messager.bupt_messager import BUPTMessager
 
 def main():
-    bupt_messager = BUPTMessager()
+    if '--debug' in sys.argv:
+        bupt_messager = BUPTMessager(debug_mode=True)
+    else:
+        bupt_messager = BUPTMessager()
     try:
         bupt_messager.run()
     except KeyboardInterrupt:

@@ -43,7 +43,7 @@ class SQLHandle(object):
         if sql_manager:
             self.sql_manager = sql_manager
         else:
-            logging.warning('No `SQLManager` specified, another `scoped_session` will be opened.')
+            logging.warning('SQLHandle: No `SQLManager` specified, another `scoped_session` will be opened.')
             self.sql_manager = SQLManager()
 
     @use_session()
@@ -55,7 +55,7 @@ class SQLHandle(object):
         attachment_list = [Attachment(**attachment_dict) for attachment_dict in notice_dict.pop('attachments')]
         new_notice = Notification(**notice_dict)
         new_notice.attachments = attachment_list
-        logging.info(f'Adding notice `{new_notice.title}` with {len(attachment_list)} attachments.')
+        logging.info(f'SQLHandle: Adding notice `{new_notice.title}` with {len(attachment_list)} attachments.')
         my_session.add(new_notice)
         my_session.commit()
         return new_notice

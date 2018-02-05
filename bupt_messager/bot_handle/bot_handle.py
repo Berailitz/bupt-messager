@@ -1,6 +1,6 @@
 import logging
 from telegram.ext import Updater, CommandHandler
-from ..queued_bot import queued_bot
+from ..bupt_messager import queued_bot
 from ..sql_handle import SQLHandle
 from .backend import Backend
 
@@ -17,7 +17,7 @@ class BotHandle(object):
         dispatcher.add_handler(start_handler)
         latest_handler = CommandHandler('latest', self.backend.latest_command, pass_args=True)
         dispatcher.add_handler(latest_handler)
-        yo_handler = CommandHandler('yo', self.backend.latest_command)
+        yo_handler = CommandHandler('yo', self.backend.yo_command)
         dispatcher.add_handler(yo_handler)
 
     def start(self):

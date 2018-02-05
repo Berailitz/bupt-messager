@@ -38,7 +38,8 @@ class NoticeManager(threading.Thread):
                 logging.exception(identifier)
                 logging.error(f'NoticeManager: error when updating: {identifier}')
                 logging.info(f'NoticeManager: sleep for {NOTICE_UPDATE_ERROR_SLEEP_TIME} seconds.')
-                time.sleep(NOTICE_UPDATE_ERROR_SLEEP_TIME)
+                if self._stop_event.wait(NOTICE_UPDATE_ERROR_SLEEP_TIME):
+                    return
 
         logging.info('NoticeManager: stopped.')
         self._stop_event.clear()

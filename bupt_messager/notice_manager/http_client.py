@@ -34,7 +34,7 @@ class HTTPClient:
                 return post_response
             except requests.Timeout as identifier:
                 attempt_times += 1
-                logging.warning(f'HTTPClient: ({attempt_times} / {max_retries}) Failed to POST `{data}` to `{url}`: {identifier}')
+                logging.warning(f'HTTPClient: ({attempt_times} / {max_retries - 1}) Failed to POST `{data}` to `{url}`: {identifier}')
         raise requests.Timeout(f'HTTPClient: Max POST retries exceeded with url: {url}')
 
     def get(self, url, timeout=HTTP_CLIENT_TIME_OUT, max_retries=HTTP_CLIENT_MAX_RETRIES, referer=HTTP_CLIENT_REFERER, **kw):
@@ -46,7 +46,7 @@ class HTTPClient:
                 return get_response
             except requests.Timeout as identifier:
                 attempt_times += 1
-                logging.warning(f'HTTPClient: ({attempt_times} / {max_retries}) Failed to GET `{url}`: {identifier}')
+                logging.warning(f'HTTPClient: ({attempt_times} / {max_retries - 1}) Failed to GET `{url}`: {identifier}')
         raise requests.Timeout(f'HTTPClient: Max GET retries exceeded with url: {url}')
 
     def refresh_session(self, session=None):

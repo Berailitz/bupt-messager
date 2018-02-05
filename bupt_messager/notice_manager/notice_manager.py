@@ -11,7 +11,7 @@ from .login_helper.auth_helper import AuthHelper
 from .login_helper.web_vpn_helper import WebVPNHelper
 
 class NoticeManager(threading.Thread):
-    def __init__(self, http_client=None, sql_handle=None, bot=None):
+    def __init__(self, sql_handle=None, bot=None, http_client=None):
         super().__init__()
         self.http_client = http_client or HTTPClient()
         self.sql_handle = sql_handle

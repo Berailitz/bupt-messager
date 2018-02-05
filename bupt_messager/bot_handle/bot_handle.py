@@ -21,6 +21,5 @@ class BotHandle(object):
 
     def stop(self):
         logging.info('Bot: stopping')
-        self.updater.idle()
         self.updater.stop()
         logging.info('Bot: stopped.')

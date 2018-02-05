@@ -65,7 +65,7 @@ class SQLHandle(object):
         return my_session.query(Notification).order_by(Notification.date).all()[start:length]
 
     @use_session()
-    def get_chats(my_session):
+    def get_chat_ids(my_session):
         return [chat.id for chat in my_session.query(Chat).all()]
 
     @use_session()

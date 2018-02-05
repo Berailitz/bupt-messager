@@ -13,8 +13,8 @@ class BotHelper(object):
     def broadcast_notice(self, notice_dict):
         keyboard = [[InlineKeyboardButton('READ', notice_dict['url'])]]
         menu_markup = InlineKeyboardMarkup(keyboard)
-        chat_list = self.sql_handle.get_chats()
-        for chat_id in [chat.id for chat in chat_list]:
-            self.bot.send_message(chat_id=chat_id, text=f"{notice_dict['title']}\n{notice_dict['text']}")
+        chat_id_list = self.sql_handle.get_chat_ids()
+        for chat_id in chat_id_list:
+            self.bot.send_message(chat_id=chat_id, text=f"{notice_dict['title']}\n{notice_dict['text']}", reply_markup=menu_markup)
             time.sleep(BOT_BROADCAST_INTERVAL)
-        logging.info(f'Broadcast to {len(chat_list)} subscribers.', reply_markup=menu_markup)
+        logging.info(f'Broadcast to {len(chat_id_list)} subscribers.')

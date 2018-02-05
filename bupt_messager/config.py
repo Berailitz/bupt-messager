@@ -10,6 +10,7 @@ except ImportError as credentials_import_error:
     raise credentials_import_error
 
 WEB_VPN_ALLOW_ERROR = True
+NOTICE_DOWNLOAD_INTERVAL = 5
 NOTICE_TITLE_LENGTH = 80
 NOTICE_SUMMARY_LENGTH = 200
 ATTACHMENT_NAME_LENGTH = 50

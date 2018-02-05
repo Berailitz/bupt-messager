@@ -3,7 +3,8 @@ import threading
 import time
 from urllib.parse import urlsplit, parse_qs
 from bs4 import BeautifulSoup
-from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH
+from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL
+from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH
 from .bot_helper import BotHelper
 from .login_helper.auth_helper import AuthHelper
 from .login_helper.web_vpn_helper import WebVPNHelper
@@ -72,7 +73,7 @@ class NoticeManager(threading.Thread):
             notice_info['title'] = notice_link.text
             notice_info['date'] = notice_item.select('span.time')[0].text
             logging.info(f"Waiting for `{notice_info['title']}`.")
-            time.sleep(5)
+            time.sleep(NOTICE_DOWNLOAD_INTERVAL)
             notice_page_soup = BeautifulSoup(self.http_client.get(notice_info['url']).text, 'lxml')
             notice_info['text'] = notice_page_soup.select('.singleinfo')[0].text
             notice_attachment = notice_page_soup.select('.battch')

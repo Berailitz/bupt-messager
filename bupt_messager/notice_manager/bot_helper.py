@@ -1,14 +1,10 @@
 import logging
-import time
-import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from ...config import BOT_TOKEN, PROXY_URL
-from .queued_bot import QueuedBot
+from ..queued_bot import queued_bot
 
 class BotHelper(object):
     def __init__(self, sql_handle):
-        my_request = telegram.utils.request.Request(proxy_url=PROXY_URL)
-        self.bot = QueuedBot(token=BOT_TOKEN, request=my_request)
+        self.bot = queued_bot
         self.sql_handle = sql_handle
 
     def broadcast_notice(self, notice_dict):

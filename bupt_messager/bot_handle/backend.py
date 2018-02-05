@@ -15,3 +15,6 @@ class Backend(object):
         for index, notice in enumerate(self.sql_handle.get_latest_notices(length)):
             text += f'{index + 1}.[{notice.title}]({notice.url})\n'
         bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=ParseMode.MARKDOWN)
+
+    def yo_command(self, bot, update):
+        bot.send_message(chat_id=update.message.chat_id, text='Yo~')

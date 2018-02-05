@@ -41,11 +41,10 @@ class NoticeManager(threading.Thread):
         update_counter = 0
         notice_list = self._doanload_notice()
         for notice_dict in notice_list:
-            if self.sql_handle.is_new_notice(notice_dict):
-                self._shape_notice(notice_dict)
-                self.sql_handle.insert_notice(notice_dict)
-                self.bot_helper.broadcast_notice(notice_dict)
-                update_counter += 1
+            self._shape_notice(notice_dict)
+            self.sql_handle.insert_notice(notice_dict)
+            self.bot_helper.broadcast_notice(notice_dict)
+            update_counter += 1
         logging.info(f'{update_counter} notifications inserted.')
         return update_counter
 
@@ -66,23 +65,30 @@ class NoticeManager(threading.Thread):
         notice_item_list = notice_index_soup.select(LINK_DIV_SELECTOR)
         logging.info(f'{len(notice_item_list)} links detected.')
         for notice_item in notice_item_list:
-            notice_info = dict()
             notice_link = notice_item.select('a')[0]
-            notice_info['url'] = NOTICE_BASEURL + notice_link['href']
-            notice_info['id'] = parse_qs(urlsplit(notice_info['url']).query)['bulletinId'][0]
-            notice_info['title'] = notice_link.text
-            notice_info['date'] = notice_item.select('span.time')[0].text
-            logging.info(f"Waiting for `{notice_info['title']}`.")
-            time.sleep(NOTICE_DOWNLOAD_INTERVAL)
-            notice_page_soup = BeautifulSoup(self.http_client.get(notice_info['url']).text, 'lxml')
-            notice_info['text'] = notice_page_soup.select('.singleinfo')[0].text
-            notice_attachment = notice_page_soup.select('.battch')
-            if notice_attachment:
-                notice_info['attachments'] = [
-                    {'name': item.text, 'url': NOTICE_BASEURL + item['href']} for item in notice_attachment[0].select('a')
-                ]
+            notice_url = NOTICE_BASEURL + notice_link['href']
+            notice_id = parse_qs(urlsplit(notice_url).query)['bulletinId'][0]
+            notice_title = notice_link.text
+            if self.sql_handle.is_new_notice(notice_id):
+                notice_info = dict()
+                notice_info['url'] = notice_url
+                notice_info['id'] = notice_id
+                notice_info['title'] = notice_title
+                notice_info['date'] = notice_item.select('span.time')[0].text
+                logging.info(f"Waiting for `{notice_info['title']}`.")
+                time.sleep(NOTICE_DOWNLOAD_INTERVAL)
+                notice_page_soup = BeautifulSoup(self.http_client.get(notice_info['url']).text, 'lxml')
+                notice_info['text'] = notice_page_soup.select('.singleinfo')[0].text
+                notice_attachment = notice_page_soup.select('.battch')
+                if notice_attachment:
+                    notice_info['attachments'] = [
+                        {'name': item.text, 'url': NOTICE_BASEURL + item['href']} for item in notice_attachment[0].select('a')
+                    ]
+                else:
+                    notice_info['attachments'] = []
+                notice_list.append(notice_info)
+                logging.info(f'NoticeManager: new notice `{notice_title}`.')
             else:
-                notice_info['attachments'] = []
-            notice_list.append(notice_info)
+                logging.info(f'NoticeManager: duplicate notice `{notice_title}`.')
         logging.info('Praser finished.')
         return notice_list

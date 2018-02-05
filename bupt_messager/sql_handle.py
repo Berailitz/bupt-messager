@@ -50,8 +50,8 @@ class SQLHandle(object):
             self.sql_manager = SQLManager()
 
     @use_session()
-    def is_new_notice(my_session, notice_dict):
-        return not my_session.query(Notification).filter(Notification.id==notice_dict['id']).all()
+    def is_new_notice(my_session, notice_id):
+        return not my_session.query(Notification).filter(Notification.id==notice_id).all()
 
     @use_session()
     def insert_notice(my_session, notice_dict):

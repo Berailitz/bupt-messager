@@ -1,15 +1,18 @@
 import logging
 from telegram.ext import Updater, CommandHandler
-from ..bupt_messager import queued_bot
 from ..sql_handle import SQLHandle
 from .backend import Backend
 
 class BotHandle(object):
-    def __init__(self, sql_manager):
-        self.bot = queued_bot
-        self.sql_handle = SQLHandle(sql_manager)
-        self.backend = Backend(self.sql_handle)
-        self.updater = Updater(bot=self.bot)
+    def __init__(self, sql_manager=None, bot=None):
+        self.backend = Backend(sql_handle=SQLHandle(sql_manager=sql_manager))
+        self.updater = Updater(bot=bot) if bot else None
+
+    def init_backend(self, sql_manager):
+        self.backend.sql_handle.init_sql_manager(sql_manager)
+
+    def init_updater(self, bot):
+        self.updater = Updater(bot=bot)
 
     def add_handler(self):
         dispatcher = self.updater.dispatcher

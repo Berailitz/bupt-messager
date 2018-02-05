@@ -5,18 +5,18 @@ from urllib.parse import urlsplit, parse_qs
 from bs4 import BeautifulSoup
 from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH
-from .bot_helper.bot_helper import BotHelper
+from .bot_helper import BotHelper
 from .login_helper.auth_helper import AuthHelper
 from .login_helper.web_vpn_helper import WebVPNHelper
 
 class NoticeManager(threading.Thread):
-    def __init__(self, http_client, sql_handle):
+    def __init__(self, http_client, sql_handle=None, bot=None):
         super().__init__()
         self.http_client = http_client
         self.sql_handle = sql_handle
         self.webvpn_helper = WebVPNHelper(self.http_client)
         self.auth_helper = AuthHelper(self.http_client)
-        self.bot_helper = BotHelper(self.sql_handle)
+        self.bot_helper = BotHelper(self.sql_handle, bot)
         self._stop_event = threading.Event()
 
     def _login(self):

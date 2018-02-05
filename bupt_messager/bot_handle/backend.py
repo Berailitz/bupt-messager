@@ -2,7 +2,10 @@ from telegram import ParseMode
 from ..config import BOT_NOTICE_LIST_LENGTH
 
 class Backend(object):
-    def __init__(self, sql_handle):
+    def __init__(self, sql_handle=None):
+        self.sql_handle = sql_handle
+
+    def init_sql_handle(self, sql_handle):
         self.sql_handle = sql_handle
 
     def start_command(self, bot, update):

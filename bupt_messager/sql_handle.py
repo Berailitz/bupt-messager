@@ -40,10 +40,13 @@ class SQLManager(object):
 
 class SQLHandle(object):
     def __init__(self, sql_manager=None):
+        self.sql_manager = sql_manager
+
+    def init_sql_manager(self, sql_manager=None):
         if sql_manager:
             self.sql_manager = sql_manager
         else:
-            logging.warning('SQLHandle: No `SQLManager` specified, another `scoped_session` will be opened.')
+            logging.warning('SQLHandle: No `sql_manager` specified, another `scoped_session` will be opened.')
             self.sql_manager = SQLManager()
 
     @use_session()

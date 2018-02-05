@@ -8,6 +8,9 @@ class LoginHelper(object):
         self.wait_intervel = 5
         self.http_client = http_client
 
+    def init_http_client(self, http_client):
+        self.http_client = http_client
+
     def _login(self):
         pass
 

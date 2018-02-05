@@ -4,7 +4,6 @@
 
 import logging
 import sys
-import threading
 from bupt_messager.bupt_messager import BUPTMessager
 
 def main():
@@ -13,7 +12,7 @@ def main():
     else:
         bupt_messager = BUPTMessager()
     try:
-        bupt_messager.run()
+        bupt_messager.start()
     except KeyboardInterrupt:
         logging.warning('Messager is going to stop due to keyboard interrupt.')
         bupt_messager.stop()

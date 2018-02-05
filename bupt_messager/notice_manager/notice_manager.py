@@ -34,6 +34,7 @@ class NoticeManager(threading.Thread):
             try:
                 self._login()
                 self.update()
+                logging.info(f'NoticeManager: Sleep for {NOTICE_CHECK_INTERVAL} seconds.')
             except Exception as identifier:
                 logging.exception(identifier)
                 logging.error(f'NoticeManager: error when updating: {identifier}')

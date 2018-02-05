@@ -14,8 +14,8 @@ def main():
         bupt_messager = BUPTMessager()
     try:
         bupt_messager.start()
-    except KeyboardInterrupt:
-        logging.warning('Messager is going to stop due to keyboard interrupt.')
+    except Exception as identifier:
+        logging.warning(f'Messager is going to stop due to: {identifier}.')
         bupt_messager.stop()
         logging.info(f'Messager: stooped.')
         logging.info(f'Left workers: {threading.enumerate()}')

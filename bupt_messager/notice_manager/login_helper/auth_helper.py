@@ -10,7 +10,11 @@ class AuthHelper(LoginHelper):
     def response_checker(self, login_response):
         correct_title = '欢迎访问信息服务门户'
         login_soup = BeautifulSoup(login_response.text, 'lxml')
-        return login_soup.title.text == correct_title
+        if login_soup.title.text == correct_title:
+            logging.info(f'Auth login: title `{login_soup.title.text}`')
+            return None
+        else:
+            return login_soup.title.text
 
     def _login(self):
         login_url = r'https://auth.bupt.edu.cn/authserver/login?service=http%3A%2F%2Fmy.bupt.edu.cn%2Flogin.portal'

@@ -27,6 +27,7 @@ class NoticeManager(threading.Thread):
         while is_first_run or not self._stop_event.wait(NOTICE_CHECK_INTERVAL):
             is_first_run = False
             logging.info('NoticeManager: updating.')
+            self._login()
             self.update()
         logging.info('NoticeManager: stopped.')
         self._stop_event.clear()
@@ -37,7 +38,6 @@ class NoticeManager(threading.Thread):
 
     def update(self):
         update_counter = 0
-        self._login()
         notice_list = self._doanload_notice()
         for notice_dict in notice_list:
             if self.sql_handle.is_new_notice(notice_dict):
@@ -68,12 +68,12 @@ class NoticeManager(threading.Thread):
             notice_info = dict()
             notice_link = notice_item.select('a')[0]
             notice_info['url'] = NOTICE_BASEURL + notice_link['href']
-            notice_info['id'] = parse_qs(urlsplit(notice_info['notice_url']).query)['bulletinId'][0]
+            notice_info['id'] = parse_qs(urlsplit(notice_info['url']).query)['bulletinId'][0]
             notice_info['title'] = notice_link.text
             notice_info['date'] = notice_item.select('span.time')[0].text
-            logging.info(f"Waiting for `{notice_info['notice_title']}`.")
+            logging.info(f"Waiting for `{notice_info['title']}`.")
             time.sleep(5)
-            notice_page_soup = BeautifulSoup(self.http_client.get(notice_info['notice_url']).text, 'lxml')
+            notice_page_soup = BeautifulSoup(self.http_client.get(notice_info['url']).text, 'lxml')
             notice_info['text'] = notice_page_soup.select('.singleinfo')[0].text
             notice_attachment = notice_page_soup.select('.battch')
             if notice_attachment:

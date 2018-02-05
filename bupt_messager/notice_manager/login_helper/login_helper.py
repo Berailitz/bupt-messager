@@ -24,11 +24,11 @@ class LoginHelper(object):
                 login_response = self._login()
                 login_result = self.response_checker(login_response)
                 if not login_result:
-                    logging.info(f'Auth login result: Success.')
+                    logging.info(f'Login result: Success.')
                     return login_response
                 else:
-                    logging.info(f'{login_counter}th login result: `{login_result}`')
-                    logging.info(f'Wait for next attempt.')
+                    logging.warning(f'{login_counter}th login result: `{login_result}`')
+                    logging.info(f'Wait for next attempt. ({login_counter} / {self.max_attempt})')
             except KeyboardInterrupt as identifier:
                 logging.warning('Catch KeyboardInterrupt when logging in.')
                 raise identifier

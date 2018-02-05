@@ -20,11 +20,13 @@ class WebVPNHelper(LoginHelper):
             try:
                 login_soup = BeautifulSoup(login_response.text, 'lxml')
                 if not login_soup.title:
+                    logging.warning('Web VPN: No title detected.')
                     if self.allow_error:
                         return None
                     else:
                         return 'Login result: No title detected.'
                 if login_soup.title.text == correct_title:
+                    logging.warning(f'Web VPN: title `{login_soup.title.text}`.')
                     return None
                 else:
                     return f'Login result: `{login_soup.title.text}`'
@@ -32,12 +34,11 @@ class WebVPNHelper(LoginHelper):
                 logging.warning('Catch KeyboardInterrupt when logging into web VPN.')
                 raise identifier
             except Exception as identifier:
-                if self.allow_error:
-                    return None
-                else:
-                    return identifier
+                logging.exception(identifier)
+                return identifier
         else:
             if self.allow_error:
+                logging.warning('Web VPN: server error: `{login_response.status_code}`')
                 return None
             else:
                 return f'Login response: `{login_response.status_code}`'

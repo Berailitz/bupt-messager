@@ -35,6 +35,9 @@ class NoticeManager(threading.Thread):
                 self._login()
                 self.update()
                 logging.info(f'NoticeManager: Sleep for {NOTICE_CHECK_INTERVAL} seconds.')
+            except KeyboardInterrupt as identifier:
+                logging.warning('NoticeManager: Catch KeyboardInterrupt when logging in.')
+                raise identifier
             except Exception as identifier:
                 logging.exception(identifier)
                 logging.error(f'NoticeManager: error when updating: {identifier}')

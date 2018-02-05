@@ -44,5 +44,8 @@ class LoginHelper(object):
     def try_login(self, error_notice=None):
         try:
             return self.try_login(error_notice=error_notice)
+        except KeyboardInterrupt as identifier:
+            logging.warning('LoginHelper: Catch KeyboardInterrupt when logging in.')
+            raise identifier
         except Exception:
             return False

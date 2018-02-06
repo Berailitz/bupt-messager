@@ -27,5 +27,10 @@ class BotBackend(object):
             text += f'{index + 1}.[{notice.title}]({notice.url})\n'
         bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=ParseMode.MARKDOWN)
 
-    def yo_command(self, bot, update):
+    @staticmethod
+    def yo_command(bot, update):
         bot.send_message(chat_id=update.message.chat_id, text='Yo~')
+
+    @staticmethod
+    def unknown_command(bot, update):
+        bot.send_message(chat_id=update.message.chat_id, text="Didn't understand...")

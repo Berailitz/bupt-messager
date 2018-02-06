@@ -1,3 +1,4 @@
+import datetime
 import logging
 import time
 
@@ -5,16 +6,23 @@ get_current_time = lambda: time.strftime('%Y%m%d%H%M%S', time.localtime(time.tim
 
 def set_logger(log_file_path, console_level=logging.INFO, file_level=logging.INFO):
     """set logger"""
+    prefix_format = '[%(levelname)s] %(asctime)s %(filename)s:%(lineno)d %(message)s'
+    date_format = '%Y %b %d %H:%M:%S'
+    rotation_time = datetime.time(hour=4)
     logging.basicConfig(
-        level=file_level,
-        format='[%(levelname)s] %(asctime)s %(filename)s:%(lineno)d %(message)s',
-        datefmt='%Y %b %d %H:%M:%S',
+        level=console_level,
+        format=prefix_format,
+        datefmt=date_format,
+    )
+    file_hanfler = logging.handlers.TimedRotatingFileHandler(
         filename=log_file_path,
-        filemode='a'
-        )
-    console = logging.StreamHandler()
-    console.setLevel(console_level)
-    formatter = logging.Formatter('[%(levelname)s] %(asctime)s %(filename)s:%(lineno)d %(message)s')
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
+        when='midnight',
+        interval=1,
+        backupCount=10,
+        atTime=rotation_time
+    )
+    file_hanfler.setLevel(file_level)
+    formatter = logging.Formatter(fmt=prefix_format, datefmt=date_format)
+    file_hanfler.setFormatter(formatter)
+    logging.getLogger(name=None).addHandler(file_hanfler)
     logging.info("Start ....")

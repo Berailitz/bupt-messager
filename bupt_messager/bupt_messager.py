@@ -3,7 +3,7 @@ import os
 import signal
 import threading
 import time
-from .mess import get_current_time, set_logger
+from .mess import set_logger
 from .notice_manager.app import create_notice_manager
 from .bot_handler.bot_handler import BotHandler
 from .config import MESSAGER_PRINT_INTERVAL
@@ -26,11 +26,11 @@ class BUPTMessager(object):
         if not os.path.exists(self.log_folder):
             raise FileNotFoundError(f'Log path does not exist: `{self.log_folder}`.')
         if self.debug_mode:
-            log_filename = f'bupt_messager_{get_current_time()}_debug.log'
+            log_filename = 'bupt_messager_debug.log'
             log_path = os.path.join(self.log_folder, log_filename)
             set_logger(log_path, console_level=logging.DEBUG, file_level=logging.DEBUG)
         else:
-            log_filename = f'bupt_messager_{get_current_time()}.log'
+            log_filename = 'bupt_messager.log'
             log_path = os.path.join(self.log_folder, log_filename)
             set_logger(log_path, console_level=logging.INFO, file_level=logging.INFO)
 

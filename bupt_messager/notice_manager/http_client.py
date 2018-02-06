@@ -27,26 +27,26 @@ class HTTPClient:
 
     def post(self, url, data, timeout=HTTP_CLIENT_TIME_OUT, max_retries=HTTP_CLIENT_MAX_RETRIES, referer=HTTP_CLIENT_REFERER, **kw):
         """customized post"""
-        for attempt_times in range(max_retries):
+        for attempt_counter in range(max_retries):
             try:
                 post_response = self.session.post(url, headers=self.create_headers(referer), data=data, timeout=timeout, **kw)
                 post_response.encoding = "utf-8"
                 return post_response
             except requests.Timeout as identifier:
-                attempt_times += 1
-                logging.warning(f'HTTPClient: ({attempt_times + 1} / {max_retries}) Failed to POST `{data}` to `{url}`: {identifier}')
+                logging.warning(f'HTTPClient: ({attempt_counter + 1} / {max_retries}) Failed to POST `{data}` to `{url}`: {identifier}')
+                attempt_counter += 1
         raise requests.Timeout(f'HTTPClient: Max POST retries exceeded with url: {url}')
 
     def get(self, url, timeout=HTTP_CLIENT_TIME_OUT, max_retries=HTTP_CLIENT_MAX_RETRIES, referer=HTTP_CLIENT_REFERER, **kw):
         """customized get"""
-        for attempt_times in range(max_retries):
+        for attempt_counter in range(max_retries):
             try:
                 get_response = self.session.get(url, headers=self.create_headers(referer), timeout=timeout, **kw)
                 get_response.encoding = "utf-8"
                 return get_response
             except requests.Timeout as identifier:
-                attempt_times += 1
-                logging.warning(f'HTTPClient: ({attempt_times + 1} / {max_retries}) Failed to GET `{url}`: {identifier}')
+                logging.warning(f'HTTPClient: ({attempt_counter + 1} / {max_retries}) Failed to GET `{url}`: {identifier}')
+                attempt_counter += 1
         raise requests.Timeout(f'HTTPClient: Max GET retries exceeded with url: {url}')
 
     def refresh_session(self, session=None):

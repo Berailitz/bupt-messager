@@ -19,10 +19,11 @@ class BUPTMessager(object):
         self.bot_handler = BotHandler(sql_manager=sql_manager, bot=queued_bot)
         self.bot_handler.add_handler()
         self.log_folder = 'log'
+        self._init_logger()
         signal.signal(signal.SIGINT, self.stop)
         signal.signal(signal.SIGTERM, self.stop)
 
-    def set_logger(self):
+    def _init_logger(self):
         if not os.path.exists(self.log_folder):
             raise FileNotFoundError(f'Log path does not exist: `{self.log_folder}`.')
         if self.debug_mode:
@@ -34,16 +35,12 @@ class BUPTMessager(object):
             log_path = os.path.join(self.log_folder, log_filename)
             set_logger(log_path, console_level=logging.INFO, file_level=logging.INFO)
 
-    def _run(self):
+    def start(self):
         self.notice_manager.start()
         self.bot_handler.start()
         while True:
             logging.info(f'Workers: {threading.enumerate()}')
             time.sleep(MESSAGER_PRINT_INTERVAL)
-
-    def start(self):
-        self.set_logger()
-        self._run()
 
     def stop(self, signum=None, frame=None):
         if signum:

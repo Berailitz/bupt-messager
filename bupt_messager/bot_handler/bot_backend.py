@@ -59,7 +59,7 @@ class BotBackend(object):
         menu_markup = InlineKeyboardMarkup(keyboard)
         bot.send_message(
             chat_id=chat_id,
-            text=f"{target_notice.title}\n{target_notice.summary}",
+            text=f"*{target_notice.title}*\n{target_notice.summary}",
             reply_markup=menu_markup
         )
 

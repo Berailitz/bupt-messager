@@ -80,7 +80,7 @@ class SQLHandle(object):
 
     @load_session
     def get_latest_status(my_session, length, start=0):
-        return my_session.query(Status).order_by(Status.time.desc())[start:length]
+        return my_session.query(Status).order_by(Status.time.desc())[start:][:length]
 
     @load_session
     def insert_status(my_session, status_code):

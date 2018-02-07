@@ -1,11 +1,12 @@
+import functools
 import logging
 import threading
 import time
 from urllib.parse import urlsplit, parse_qs
-import requests
 from bs4 import BeautifulSoup
 from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL, NOTICE_UPDATE_ERROR_SLEEP_TIME
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH
+from ..config import STATUS_ERROR_DOWNLOAD, STATUS_ERROR_LOGIN_AUTH, STATUS_ERROR_LOGIN_WEBVPN, STATUS_SYNCED
 from .bot_helper import BotHelper
 from .http_client import HTTPClient
 from .login_helper.auth_helper import AuthHelper
@@ -21,18 +22,41 @@ class NoticeManager(threading.Thread):
         self.bot_helper = BotHelper(self.sql_handle, bot)
         self._stop_event = threading.Event()
 
-    def _login(self):
+    @staticmethod
+    def change_status(*, error_status=None, ok_status=None):
+        def decorator(func):
+            @functools.wraps(func)
+            def wrapper(*args, **kw):
+                self = args[0]
+                try:
+                    return func(*args, **kw)
+                except Exception as identifier:
+                    if error_status:
+                        self.sql_handle.insert_status(error_status)
+                    raise identifier
+                else:
+                    if ok_status:
+                        self.sql_handle.insert_status(ok_status)
+            return wrapper
+        return decorator
+
+    @NoticeManager.change_status(error_status=STATUS_ERROR_LOGIN_WEBVPN)
+    def _login_webvpn(self):
         self.webvpn_helper.do_login(error_notice='Web VPN (webvpn.bupt.edu.cn)')
+
+    @NoticeManager.change_status(error_status=STATUS_ERROR_LOGIN_AUTH)
+    def _login_auth(self):
         self.auth_helper.do_login(error_notice='Auth (my.bupt.edu.cn)')
 
     def run(self):
         is_first_run = True
         while is_first_run or not self._stop_event.wait(NOTICE_CHECK_INTERVAL):
             is_first_run = False
-            logging.info('NoticeManager: updating.')
+            logging.info('NoticeManager: Updating.')
             self.http_client.refresh_session()
             try:
-                self._login()
+                self._login_webvpn()
+                self._login_auth()
                 self.update()
                 logging.info(f'NoticeManager: Sleep for {NOTICE_CHECK_INTERVAL} seconds.')
             except KeyboardInterrupt as identifier:
@@ -40,17 +64,18 @@ class NoticeManager(threading.Thread):
                 raise identifier
             except Exception as identifier:
                 logging.exception(identifier)
-                logging.error(f'NoticeManager: error when updating: {identifier}')
-                logging.info(f'NoticeManager: sleep for {NOTICE_UPDATE_ERROR_SLEEP_TIME} seconds.')
+                logging.error(f'NoticeManager: Error occured when updating: {identifier}')
+                logging.info(f'NoticeManager: Sleep for {NOTICE_UPDATE_ERROR_SLEEP_TIME} seconds.')
                 if self._stop_event.wait(NOTICE_UPDATE_ERROR_SLEEP_TIME):
                     break
-        logging.info('NoticeManager: stopped.')
+        logging.info('NoticeManager: Stopped.')
         self._stop_event.clear()
 
     def stop(self):
         self._stop_event.set()
-        logging.info('NoticeManager: set stop signal.')
+        logging.info('NoticeManager: Set stop signal.')
 
+    @NoticeManager.change_status(ok_status=STATUS_SYNCED)
     def update(self):
         update_counter = 0
         notice_list = self._doanload_notice()
@@ -69,6 +94,7 @@ class NoticeManager(threading.Thread):
         for attachment in notice_dict['attachments']:
             attachment['name'] = attachment['name'][:ATTACHMENT_NAME_LENGTH]
 
+    @NoticeManager.change_status(error_status=STATUS_ERROR_DOWNLOAD)
     def _doanload_notice(self):
         NOTICE_LIST_URL = 'http://my.bupt.edu.cn/detach.portal?.pen=pe1144&.pmn=view%27'
         NOTICE_BASEURL = 'http://my.bupt.edu.cn/'
@@ -101,8 +127,8 @@ class NoticeManager(threading.Thread):
                 else:
                     notice_info['attachments'] = []
                 notice_list.append(notice_info)
-                logging.info(f'NoticeManager: new notice `{notice_title}`.')
+                logging.info(f'NoticeManager: New notice `{notice_title}`.')
             else:
-                logging.info(f'NoticeManager: duplicate notice `{notice_title}`.')
-        logging.info('Praser finished.')
+                logging.info(f'NoticeManager: Duplicate notice `{notice_title}`.')
+        logging.info('NoticeManager: Praser finished.')
         return notice_list

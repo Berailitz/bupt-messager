@@ -1,6 +1,8 @@
-from sqlalchemy import Column, Date, Integer, String, Text, ForeignKey
+from sqlalchemy import Column, Date, DateTime, Integer, String, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func as sql_func
+from .config import STATUS_TEXT_DICT
 
 Base = declarative_base()
 
@@ -57,3 +59,21 @@ class Chat(Base):
 
     def __repr__(self):
         return f"<Chat(id='{self.id}')>"
+
+"""
+CREATE TABLE `status` (
+  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+"""
+class Status(Base):
+    __tablename__ = 'status'
+    status = Column(Integer)
+    time = Column(DateTime, primary_key=True, server_default=sql_func.now(), server_onupdate=sql_func.now())
+
+    def __repr__(self):
+        return f"<Status(status={self.status_text}, time='{self.time}')>"
+
+    @property
+    def status_text(self):
+        return STATUS_TEXT_DICT[self.status]

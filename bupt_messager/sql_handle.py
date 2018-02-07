@@ -1,19 +1,10 @@
 import functools
 import logging
 from contextlib import contextmanager
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, exists
 from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 from .config import SQLALCHEMY_DATABASE_URI
-from .models import Attachment, Base, Chat, Notification
-
-def use_session():
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kw):
-            with args[0].sql_manager.create_session() as my_session:
-                return func(my_session, *args[1:], **kw)
-        return wrapper
-    return decorator
+from .models import Attachment, Base, Chat, Notification, Status
 
 class SQLManager(object):
     def __init__(self):
@@ -49,11 +40,19 @@ class SQLHandle(object):
             logging.warning('SQLHandle: No `sql_manager` specified, another `scoped_session` will be opened.')
             self.sql_manager = SQLManager()
 
-    @use_session()
-    def is_new_notice(my_session, notice_id):
-        return not my_session.query(Notification).filter(Notification.id==notice_id).all()
+    @staticmethod
+    def load_session(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kw):
+            with args[0].sql_manager.create_session() as my_session:
+                return func(my_session, *args[1:], **kw)
+        return wrapper
 
-    @use_session()
+    @SQLHandle.load_session
+    def is_new_notice(my_session, notice_id):
+        return not my_session.query(exists().where(Notification.id==notice_id)).scalar()
+
+    @SQLHandle.load_session
     def insert_notice(my_session, notice_dict):
         attachment_list = [Attachment(**attachment_dict) for attachment_dict in notice_dict.pop('attachments')]
         new_notice = Notification(**notice_dict)
@@ -63,19 +62,30 @@ class SQLHandle(object):
         my_session.commit()
         return new_notice
 
-    @use_session()
+    @SQLHandle.load_session
     def get_latest_notices(my_session, length, start=0):
-        return my_session.query(Notification).order_by(Notification.date).all()[start:length]
+        return my_session.query(Notification).order_by(Notification.date.desc())[start:length]
 
-    @use_session()
+    @SQLHandle.load_session
     def get_chat_ids(my_session):
         return [chat.id for chat in my_session.query(Chat).all()]
 
-    @use_session()
+    @SQLHandle.load_session
     def insert_chat(my_session, new_id):
-        if not my_session.query(Chat).filter(Chat.id==new_id).all():
+        if not my_session.query(exists().where(Chat.id==new_id)).scalar():
             new_chat = Chat(id=new_id)
             my_session.add(new_chat)
             my_session.commit()
             return new_chat
         return None
+
+    @SQLHandle.load_session
+    def get_latest_status(my_session, length, start=0):
+        return my_session.query(Status).order_by(Status.time.desc())[start:length]
+
+    @SQLHandle.load_session
+    def insert_status(my_session, status_code):
+        new_status = Status(status=status_code)
+        my_session.add(new_status)
+        my_session.commit()
+        return new_status

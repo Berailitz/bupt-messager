@@ -27,3 +27,9 @@ def set_logger(log_file_path, console_level=logging.INFO, file_level=logging.INF
     file_hanfler.setFormatter(formatter)
     logging.getLogger(name=None).addHandler(file_hanfler)
     logging.info("Start ....")
+
+def try_int(text, default=None):
+    try:
+        return int(text)
+    except ValueError:
+        return default

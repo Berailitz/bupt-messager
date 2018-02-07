@@ -1,6 +1,6 @@
 import logging
 from telegram import ParseMode
-from ..config import BOT_NOTICE_LIST_LENGTH
+from ..config import BOT_NOTICE_LIST_LENGTH, BOT_STATUS_LIST_LENGTH
 
 class BotBackend(object):
     def __init__(self, sql_handle=None):
@@ -19,16 +19,28 @@ class BotBackend(object):
         try:
             length = int(args[0]) if args else BOT_NOTICE_LIST_LENGTH
         except ValueError as identifier:
-            bot.send_message(chat_id=update.message.chat_id, text="Didn't understand...", parse_mode=ParseMode.MARKDOWN)
+            bot.send_message(chat_id=update.message.chat_id, text="Didn't understand...")
             logging.info(f'BotBackend.latest_command: {identifier}')
             return
         text = ""
         for index, notice in enumerate(self.sql_handle.get_latest_notices(length)):
-            text += f'{index + 1}.[{notice.title}]({notice.url})\n'
+            text += f'{index + 1}.[{notice.title}]({notice.url})({notice.date})\n'
         bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=ParseMode.MARKDOWN)
 
     @staticmethod
     def yo_command(bot, update):
+        bot.send_message(chat_id=update.message.chat_id, text='Yo~')
+
+    def status_command(self, bot, update, args):
+        try:
+            length = int(args[0]) if args else BOT_STATUS_LIST_LENGTH
+        except ValueError as identifier:
+            bot.send_message(chat_id=update.message.chat_id, text="Didn't understand...")
+            logging.info(f'BotBackend.status_command: {identifier}')
+            return
+        text = ""
+        for status in self.sql_handle.get_latest_status(length):
+            text += f'{status.time}: {status.status_text}\n'
         bot.send_message(chat_id=update.message.chat_id, text='Yo~')
 
     @staticmethod

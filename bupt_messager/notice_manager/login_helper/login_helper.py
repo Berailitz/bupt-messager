@@ -40,6 +40,7 @@ class LoginHelper(object):
                     raise identifier
             finally:
                 time.sleep(self.wait_intervel)
+        raise PermissionError(f'LoginHelper: Cannot login: `{error_notice}`.')
 
     def try_login(self, error_notice=None):
         try:

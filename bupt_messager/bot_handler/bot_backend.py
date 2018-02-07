@@ -41,7 +41,7 @@ class BotBackend(object):
         text = ""
         for status in self.sql_handle.get_latest_status(length):
             text += f'{status.time}: {status.status_text}\n'
-        bot.send_message(chat_id=update.message.chat_id, text='Yo~')
+        bot.send_message(chat_id=update.message.chat_id, text=text)
 
     @staticmethod
     def unknown_command(bot, update):

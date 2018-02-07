@@ -69,7 +69,7 @@ CREATE TABLE `status` (
 class Status(Base):
     __tablename__ = 'status'
     status = Column(Integer)
-    time = Column(DateTime, primary_key=True, server_default=sql_func.now(), server_onupdate=sql_func.now())
+    time = Column(DateTime, primary_key=True, default=sql_func.now(), onupdate=sql_func.now())
 
     def __repr__(self):
         return f"<Status(status={self.status_text}, time='{self.time}')>"

@@ -45,7 +45,7 @@ class BotBackend(object):
         bot.send_message(chat_id=update.message.chat_id, text=text)
 
     def read_command(self, bot, update, args):
-        index = try_int(args[0])
+        index = try_int(args[0]) if args else None
         if not index:
             bot.send_message(chat_id=update.message.chat_id, text="Didn't understand...")
         target_notice = self.sql_handle.get_latest_notices(length=1, start=index - 1)

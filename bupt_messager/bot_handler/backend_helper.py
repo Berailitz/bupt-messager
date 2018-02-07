@@ -9,7 +9,7 @@ from ..mess import get_arg
 def admin_only(func):
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        bot = get_arg(telegram.bot, args, kwargs)
+        bot = get_arg(telegram.bot.Bot, args, kwargs)
         update = get_arg(telegram.update, args, kwargs)
         user_id = update.effective_user.id
         if user_id not in BOT_ADMIN_IDS:

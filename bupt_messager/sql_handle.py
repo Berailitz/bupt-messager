@@ -40,7 +40,6 @@ class SQLHandle(object):
             logging.warning('SQLHandle: No `sql_manager` specified, another `scoped_session` will be opened.')
             self.sql_manager = SQLManager()
 
-    @staticmethod
     def load_session(func):
         @functools.wraps(func)
         def wrapper(*args, **kw):
@@ -48,11 +47,11 @@ class SQLHandle(object):
                 return func(my_session, *args[1:], **kw)
         return wrapper
 
-    @SQLHandle.load_session
+    @load_session
     def is_new_notice(my_session, notice_id):
         return not my_session.query(exists().where(Notification.id==notice_id)).scalar()
 
-    @SQLHandle.load_session
+    @load_session
     def insert_notice(my_session, notice_dict):
         attachment_list = [Attachment(**attachment_dict) for attachment_dict in notice_dict.pop('attachments')]
         new_notice = Notification(**notice_dict)
@@ -62,15 +61,15 @@ class SQLHandle(object):
         my_session.commit()
         return new_notice
 
-    @SQLHandle.load_session
+    @load_session
     def get_latest_notices(my_session, length, start=0):
         return my_session.query(Notification).order_by(Notification.date.desc())[start:length]
 
-    @SQLHandle.load_session
+    @load_session
     def get_chat_ids(my_session):
         return [chat.id for chat in my_session.query(Chat).all()]
 
-    @SQLHandle.load_session
+    @load_session
     def insert_chat(my_session, new_id):
         if not my_session.query(exists().where(Chat.id==new_id)).scalar():
             new_chat = Chat(id=new_id)
@@ -79,11 +78,11 @@ class SQLHandle(object):
             return new_chat
         return None
 
-    @SQLHandle.load_session
+    @load_session
     def get_latest_status(my_session, length, start=0):
         return my_session.query(Status).order_by(Status.time.desc())[start:length]
 
-    @SQLHandle.load_session
+    @load_session
     def insert_status(my_session, status_code):
         new_status = Status(status=status_code)
         my_session.add(new_status)

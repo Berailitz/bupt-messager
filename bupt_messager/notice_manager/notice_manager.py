@@ -22,7 +22,6 @@ class NoticeManager(threading.Thread):
         self.bot_helper = BotHelper(self.sql_handle, bot)
         self._stop_event = threading.Event()
 
-    @staticmethod
     def change_status(*, error_status=None, ok_status=None):
         def decorator(func):
             @functools.wraps(func)
@@ -40,11 +39,11 @@ class NoticeManager(threading.Thread):
             return wrapper
         return decorator
 
-    @NoticeManager.change_status(error_status=STATUS_ERROR_LOGIN_WEBVPN)
+    @change_status(error_status=STATUS_ERROR_LOGIN_WEBVPN)
     def _login_webvpn(self):
         self.webvpn_helper.do_login(error_notice='Web VPN (webvpn.bupt.edu.cn)')
 
-    @NoticeManager.change_status(error_status=STATUS_ERROR_LOGIN_AUTH)
+    @change_status(error_status=STATUS_ERROR_LOGIN_AUTH)
     def _login_auth(self):
         self.auth_helper.do_login(error_notice='Auth (my.bupt.edu.cn)')
 
@@ -75,7 +74,7 @@ class NoticeManager(threading.Thread):
         self._stop_event.set()
         logging.info('NoticeManager: Set stop signal.')
 
-    @NoticeManager.change_status(ok_status=STATUS_SYNCED)
+    @change_status(ok_status=STATUS_SYNCED)
     def update(self):
         update_counter = 0
         notice_list = self._doanload_notice()
@@ -94,7 +93,7 @@ class NoticeManager(threading.Thread):
         for attachment in notice_dict['attachments']:
             attachment['name'] = attachment['name'][:ATTACHMENT_NAME_LENGTH]
 
-    @NoticeManager.change_status(error_status=STATUS_ERROR_DOWNLOAD)
+    @change_status(error_status=STATUS_ERROR_DOWNLOAD)
     def _doanload_notice(self):
         NOTICE_LIST_URL = 'http://my.bupt.edu.cn/detach.portal?.pen=pe1144&.pmn=view%27'
         NOTICE_BASEURL = 'http://my.bupt.edu.cn/'

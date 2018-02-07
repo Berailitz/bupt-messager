@@ -41,8 +41,8 @@ class BotBackend(object):
     @admin_only
     def restart_command(self, bot, update):
         update.message.reply_text('Bot is restarting...')
-        logging.warning(f'BotBackend: Received restart command from user `{update.message.effective_user.name}`.')
-        Thread(target=restart_app).start()
+        logging.warning(f'BotBackend: Received restart command from user `{update.effective_user.name}`.')
+        Thread(target=restart_app, args=(self.updater,)).start()
 
     def status_command(self, bot, update, args):
         try:

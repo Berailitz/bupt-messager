@@ -45,13 +45,13 @@ class BotBackend(object):
         bot.send_message(chat_id=update.message.chat_id, text=text)
 
     def read_command(self, bot, update, args):
-        index = try_int(args[0]) if args else None
-        if not index:
-            bot.send_message(chat_id=update.message.chat_id, text="Didn't understand...")
+        index = try_int(args[0]) if args else 1
+        notice_list = self.sql_handle.get_latest_notices(length=1, start=index - 1)
+        if notice_list:
+            target_notice = notice_list[0]
+            self._send_notice(bot, target_notice=target_notice, chat_id=update.message.chat_id)
         else:
-            target_notice = self.sql_handle.get_latest_notices(length=1, start=index - 1)
-            if target_notice:
-                self._send_notice(bot, target_notice=target_notice, chat_id=update.message.chat_id)
+            bot.send_message(chat_id=update.message.chat_id, text="No such notice.")
 
     @staticmethod
     def _send_notice(bot, *, target_notice, chat_id):

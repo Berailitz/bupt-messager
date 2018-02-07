@@ -60,7 +60,8 @@ class BotBackend(object):
         bot.send_message(
             chat_id=chat_id,
             text=f"*{target_notice.title}*\n{target_notice.summary}",
-            reply_markup=menu_markup
+            reply_markup=menu_markup,
+            parse_mode=ParseMode.MARKDOWN
         )
 
     @staticmethod

@@ -23,6 +23,8 @@ class BotHandler(object):
         dispatcher.add_handler(latest_handler)
         status_handler = CommandHandler('status', self.bot_backend.status_command, pass_args=True)
         dispatcher.add_handler(status_handler)
+        read_handler = CommandHandler('read', self.bot_backend.read_command)
+        dispatcher.add_handler(read_handler)
         yo_handler = CommandHandler('yo', self.bot_backend.yo_command)
         dispatcher.add_handler(yo_handler)
         unknown_handler = MessageHandler(Filters.command, self.bot_backend.unknown_command)

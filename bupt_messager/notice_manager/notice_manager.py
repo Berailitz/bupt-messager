@@ -30,11 +30,11 @@ class NoticeManager(threading.Thread):
                 try:
                     return func(*args, **kw)
                 except Exception as identifier:
-                    if error_status:
+                    if error_status is not None:
                         self.sql_handle.insert_status(error_status)
                     raise identifier
                 else:
-                    if ok_status:
+                    if ok_status is not None:
                         self.sql_handle.insert_status(ok_status)
             return wrapper
         return decorator

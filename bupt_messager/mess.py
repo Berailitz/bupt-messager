@@ -1,4 +1,5 @@
 import datetime
+import itertools
 import logging
 import logging.handlers
 import time
@@ -33,3 +34,9 @@ def try_int(text, default=None):
         return int(text)
     except ValueError:
         return default
+
+def get_arg(target, args, kwargs):
+    for value in itertools.chain(args, kwargs.values()):
+        if isinstance(value, target):
+            return value
+    raise ValueError(f'No such value: {target}')

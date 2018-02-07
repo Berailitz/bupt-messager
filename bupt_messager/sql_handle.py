@@ -63,7 +63,7 @@ class SQLHandle(object):
 
     @load_session
     def get_latest_notices(my_session, length, start=0):
-        return my_session.query(Notification).order_by(Notification.date.desc())[start:length]
+        return my_session.query(Notification).order_by(Notification.date.desc())[start:][:length]
 
     @load_session
     def get_chat_ids(my_session):

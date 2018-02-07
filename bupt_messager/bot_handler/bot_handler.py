@@ -6,8 +6,11 @@ from .bot_backend import BotBackend
 
 class BotHandler(object):
     def __init__(self, sql_manager=None, bot=None):
-        self.bot_backend = BotBackend(sql_handle=SQLHandle(sql_manager=sql_manager))
         self.updater = Updater(bot=bot) if bot else None
+        self.bot_backend = BotBackend(
+            sql_handle=SQLHandle(sql_manager=sql_manager),
+            updater=self.updater
+        )
 
     def init_bot_backend(self, sql_manager):
         self.bot_backend.sql_handle.init_sql_manager(sql_manager)
@@ -27,6 +30,8 @@ class BotHandler(object):
         dispatcher.add_handler(read_handler)
         yo_handler = CommandHandler('yo', self.bot_backend.yo_command)
         dispatcher.add_handler(yo_handler)
+        restart_handler = CommandHandler('restart', self.bot_backend.restart_command)
+        dispatcher.add_handler(restart_handler)
         unknown_handler = MessageHandler(Filters.command, self.bot_backend.unknown_command)
         dispatcher.add_handler(unknown_handler)
 

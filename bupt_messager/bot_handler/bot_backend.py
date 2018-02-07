@@ -1,14 +1,20 @@
 import logging
+from threading import Thread
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
 from ..config import BOT_NOTICE_LIST_LENGTH, BOT_STATUS_LIST_LENGTH
 from ..mess import try_int
+from .backend_helper import admin_only, restart_app
 
 class BotBackend(object):
-    def __init__(self, sql_handle=None):
+    def __init__(self, *, sql_handle=None, updater=None):
         self.sql_handle = sql_handle
+        self.updater = updater
 
     def init_sql_handle(self, sql_handle):
         self.sql_handle = sql_handle
+
+    def init_updater(self, updater):
+        self.updater = updater
 
     def start_command(self, bot, update):
         bot.send_message(chat_id=update.message.chat_id, text="Welcome.")
@@ -31,6 +37,12 @@ class BotBackend(object):
     @staticmethod
     def yo_command(bot, update):
         bot.send_message(chat_id=update.message.chat_id, text='Yo~')
+
+    @admin_only
+    def restart_command(self, bot, update):
+        update.message.reply_text('Bot is restarting...')
+        logging.warning(f'BotBackend: Received restart command from user `{update.message.effective_user.name}`.')
+        Thread(target=restart_app).start()
 
     def status_command(self, bot, update, args):
         try:

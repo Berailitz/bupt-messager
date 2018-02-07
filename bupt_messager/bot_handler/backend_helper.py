@@ -10,7 +10,7 @@ def admin_only(func):
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
         bot = get_arg(telegram.bot.Bot, args, kwargs)
-        update = get_arg(telegram.update, args, kwargs)
+        update = get_arg(telegram.update.Update, args, kwargs)
         user_id = update.effective_user.id
         if user_id not in BOT_ADMIN_IDS:
             logging.warning(f"BotBackend: Unauthorized attempt to `{func.__name__}` from `{user_id}`.")

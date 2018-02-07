@@ -48,9 +48,10 @@ class BotBackend(object):
         index = try_int(args[0]) if args else None
         if not index:
             bot.send_message(chat_id=update.message.chat_id, text="Didn't understand...")
-        target_notice = self.sql_handle.get_latest_notices(length=1, start=index - 1)
-        if target_notice:
-            self._send_notice(bot, target_notice=target_notice, chat_id=update.message.chat_id)
+        else:
+            target_notice = self.sql_handle.get_latest_notices(length=1, start=index - 1)
+            if target_notice:
+                self._send_notice(bot, target_notice=target_notice, chat_id=update.message.chat_id)
 
     @staticmethod
     def _send_notice(bot, *, target_notice, chat_id):

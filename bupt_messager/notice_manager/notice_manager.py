@@ -28,7 +28,7 @@ class NoticeManager(threading.Thread):
             def wrapper(*args, **kw):
                 self = args[0]
                 try:
-                    return func(*args, **kw)
+                    result = func(*args, **kw)
                 except Exception as identifier:
                     if error_status is not None:
                         self.sql_handle.insert_status(error_status)
@@ -36,6 +36,7 @@ class NoticeManager(threading.Thread):
                 else:
                     if ok_status is not None:
                         self.sql_handle.insert_status(ok_status)
+                return result
             return wrapper
         return decorator
 

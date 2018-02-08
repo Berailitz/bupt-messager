@@ -54,7 +54,7 @@ class BackendHelper(object):
             menu_markup = InlineKeyboardMarkup(keyboard)
             bot.send_message(
                 chat_id=message.chat_id,
-                text=f"*{target_notice.title}*\n{target_notice.summary}...({notice.date})",
+                text=f"*{target_notice.title}*\n{target_notice.summary}...({target_notice.date})",
                 reply_markup=menu_markup,
                 parse_mode=ParseMode.MARKDOWN
             )

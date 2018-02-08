@@ -3,8 +3,9 @@ import logging
 import os
 import sys
 import telegram
+from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
 from ..config import BOT_ADMIN_IDS
-from ..mess import get_arg
+from ..mess import get_arg, threaded
 
 def admin_only(func):
     @functools.wraps(func)
@@ -19,7 +20,45 @@ def admin_only(func):
         return func(*args, **kwargs)
     return wrapped
 
-def restart_app(updater):
-    """Gracefully stop the Updater and replace the current process with a new one"""
-    updater.stop()
-    os.execl(sys.executable, sys.executable, *sys.argv)
+class BackendHelper(object):
+    def __init__(self, *, sql_handle=None, updater=None):
+        self.sql_handle = sql_handle
+        self.updater = updater
+
+    def init_sql_handle(self, sql_handle):
+        self.sql_handle = sql_handle
+
+    def init_updater(self, updater):
+        self.updater = updater
+
+    @threaded
+    def restart_app(self):
+        """Gracefully stop the Updater and replace the current process with a new one"""
+        self.updater.stop()
+        os.execl(sys.executable, sys.executable, *sys.argv)
+
+    @staticmethod
+    def build_menu(buttons, width, header_buttons=None, footer_buttons=None):
+        menu = [buttons[i:i + width] for i in range(0, len(buttons), width)]
+        if header_buttons:
+            menu.insert(0, header_buttons)
+        if footer_buttons:
+            menu.append(footer_buttons)
+        return menu
+
+    def send_latest_notice(self, *, bot, update, length, start=0):
+        text = ""
+        buttons = []
+        for index, notice in enumerate(self.sql_handle.get_latest_notices(length=length, start=start)):
+            text += f'{index + 1}.[{notice.title}]({notice.url})({notice.date})\n'
+            buttons.append(text=f'{index + 1}', callback_data=f'read_{index + 1}')
+        keyboard = self.build_menu(
+            buttons=buttons,
+            width=5,
+            footer_buttons=[InlineKeyboardButton(text='more', callback_data=f'latest_{length}_{length}')]
+        )
+        bot.send_message(
+            chat_id=update.message.chat_id,
+            text=text,
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=keyboard)

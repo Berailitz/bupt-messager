@@ -2,6 +2,7 @@ import datetime
 import itertools
 import logging
 import logging.handlers
+import threading
 import time
 
 get_current_time = lambda: time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
@@ -40,3 +41,10 @@ def get_arg(target, args, kwargs):
         if isinstance(value, target):
             return value
     raise ValueError(f'No such value: {target}')
+
+def threaded(fn):
+    def wrapper(*args, **kwargs):
+        thread = threading.Thread(target=fn, args=args, kwargs=kwargs)
+        thread.start()
+        return thread
+    return wrapper

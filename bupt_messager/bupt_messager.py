@@ -39,8 +39,10 @@ class BUPTMessager(object):
 
     def start(self):
         if not self.no_spider_mode:
+            logging.warning('BUPTMessager: no_spider_mode is ON.')
             self.notice_manager.start()
         if not self.no_bot_mode:
+            logging.warning('BUPTMessager: no_bot_mode is ON.')
             self.bot_handler.start()
         while True:
             logging.info(f'Workers: {threading.enumerate()}')

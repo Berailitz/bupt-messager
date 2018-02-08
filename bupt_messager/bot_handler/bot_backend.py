@@ -38,7 +38,7 @@ class BotBackend(object):
         args = self.backend_helper.prase_callback(update)
         length = try_int(args[0]) if args else 1
         start = try_int(args[1]) if args[1:] else 0
-        self.backend_helper.send_latest_notice(bot=bot, message=update.message, length=length, start=start)
+        self.backend_helper.send_latest_notice(bot=bot, message=update.callback_query.message, length=length, start=start)
 
     @staticmethod
     def yo_command(bot, update):

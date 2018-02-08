@@ -4,7 +4,7 @@ import os
 import sys
 import telegram
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
-from ..config import BOT_ADMIN_IDS
+from ..config import BOT_ADMIN_IDS, BOT_NOTICE_MAX_BUTTON_PER_LINE
 from ..mess import get_arg, threaded
 
 def admin_only(func):
@@ -54,7 +54,7 @@ class BackendHelper(object):
             buttons.append(InlineKeyboardButton(text=f'{index + 1}', callback_data=f'read_{start + index}'))
         keyboard = self.markup_keyboard(
             buttons=buttons,
-            width=5,
+            width=BOT_NOTICE_MAX_BUTTON_PER_LINE,
             footer_buttons=[InlineKeyboardButton(text='more', callback_data=f'latest_{length}_{start + length}')]
         )
         if text:

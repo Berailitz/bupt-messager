@@ -28,7 +28,7 @@ class BotHandler(object):
         dispatcher.add_handler(status_handler)
         read_handler = CommandHandler('read', self.bot_backend.read_command, pass_args=True)
         dispatcher.add_handler(read_handler)
-        read_callback = CallbackQueryHandler(pattern='^read_', callback=self.bot_backend.read_command)
+        read_callback = CallbackQueryHandler(pattern='^read_', callback=self.bot_backend.read_callback)
         dispatcher.add_handler(read_callback)
         yo_handler = CommandHandler('yo', self.bot_backend.yo_command)
         dispatcher.add_handler(yo_handler)

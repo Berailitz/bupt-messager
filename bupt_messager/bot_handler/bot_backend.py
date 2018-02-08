@@ -58,20 +58,20 @@ class BotBackend(object):
 
     def read_command(self, bot, update, args):
         index = try_int(args[0]) if args else 1
-        self.send_notice(index, bot, update)
+        self.send_notice(bot, update.message, index)
 
     def read_callback(self, bot, update):
         args = self.backend_helper.prase_callback(update)
         index = try_int(args[0]) if args else 1
-        self.send_notice(index, bot, update)
+        self.send_notice(bot, update.callback_query.message, index)
 
-    def send_notice(self, bot, update, index):
+    def send_notice(self, bot, message, index):
         notice_list = self.sql_handle.get_latest_notices(length=1, start=index - 1)
         if notice_list:
             target_notice = notice_list[0]
-            self._send_notice(bot, target_notice=target_notice, chat_id=update.message.chat_id)
+            self._send_notice(bot, target_notice=target_notice, chat_id=message.chat_id)
         else:
-            bot.send_message(chat_id=update.message.chat_id, text="No such notice.")
+            bot.send_message(chat_id=message.chat_id, text="No such notice.")
 
     @staticmethod
     def _send_notice(bot, *, target_notice, chat_id):
@@ -79,8 +79,9 @@ class BotBackend(object):
         menu_markup = InlineKeyboardMarkup(keyboard)
         bot.send_message(
             chat_id=chat_id,
-            text=f"{target_notice.title}\n{target_notice.summary}",
-            reply_markup=menu_markup
+            text=f"*{target_notice.title}*\n{target_notice.summary}",
+            reply_markup=menu_markup,
+            parse_mode=ParseMode.MARKDOWN
         )
 
     @staticmethod

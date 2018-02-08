@@ -38,21 +38,21 @@ class BackendHelper(object):
         os.execl(sys.executable, sys.executable, *sys.argv)
 
     @staticmethod
-    def build_menu(buttons, width, header_buttons=None, footer_buttons=None):
+    def markup_keyboard(buttons, width, header_buttons=None, footer_buttons=None):
         menu = [buttons[i:i + width] for i in range(0, len(buttons), width)]
         if header_buttons:
             menu.insert(0, header_buttons)
         if footer_buttons:
             menu.append(footer_buttons)
-        return menu
+        return InlineKeyboardMarkup(menu)
 
     def send_latest_notice(self, *, bot, update, length, start=0):
         text = ""
         buttons = []
         for index, notice in enumerate(self.sql_handle.get_latest_notices(length=length, start=start)):
             text += f'{index + 1}.[{notice.title}]({notice.url})({notice.date})\n'
-            buttons.append(text=f'{index + 1}', callback_data=f'read_{index + 1}')
-        keyboard = self.build_menu(
+            buttons.append(InlineKeyboardButton(text=f'{index + 1}', callback_data=f'read_{index + 1}'))
+        keyboard = self.markup_keyboard(
             buttons=buttons,
             width=5,
             footer_buttons=[InlineKeyboardButton(text='more', callback_data=f'latest_{length}_{length}')]

@@ -1,6 +1,4 @@
 import logging
-from threading import Thread
-from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
 from ..config import BOT_NOTICE_LIST_LENGTH, BOT_STATUS_LIST_LENGTH
 from ..mess import try_int
 from .backend_helper import admin_only, BackendHelper
@@ -64,31 +62,12 @@ class BotBackend(object):
 
     def read_command(self, bot, update, args):
         index = try_int(args[0]) if args else 1
-        self.send_notice(bot, update.message, index - 1)
+        self.backend_helper.send_notice(bot, update.message, index - 1)
 
     def read_callback(self, bot, update):
         args = self.backend_helper.prase_callback(update)
         index = try_int(args[0]) if args else 0
-        self.send_notice(bot, update.callback_query.message, index)
-
-    def send_notice(self, bot, message, index):
-        notice_list = self.sql_handle.get_latest_notices(length=1, start=index)
-        if notice_list:
-            target_notice = notice_list[0]
-            self._send_notice(bot, target_notice=target_notice, chat_id=message.chat_id)
-        else:
-            bot.send_message(chat_id=message.chat_id, text="No such notice.")
-
-    @staticmethod
-    def _send_notice(bot, *, target_notice, chat_id):
-        keyboard = [[InlineKeyboardButton('READ', target_notice.url)]]
-        menu_markup = InlineKeyboardMarkup(keyboard)
-        bot.send_message(
-            chat_id=chat_id,
-            text=f"*{target_notice.title}*\n{target_notice.summary}...",
-            reply_markup=menu_markup,
-            parse_mode=ParseMode.MARKDOWN
-        )
+        self.backend_helper.send_notice(bot, update.callback_query.message, index)
 
     @staticmethod
     def unknown_command(bot, update):

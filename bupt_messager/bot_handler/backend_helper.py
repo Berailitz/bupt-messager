@@ -46,6 +46,21 @@ class BackendHelper(object):
             menu.append(footer_buttons)
         return InlineKeyboardMarkup(menu)
 
+    def send_notice(self, bot, message, index):
+        notice_list = self.sql_handle.get_latest_notices(length=1, start=index)
+        if notice_list:
+            target_notice = notice_list[0]
+            keyboard = [[InlineKeyboardButton('READ', target_notice.url)]]
+            menu_markup = InlineKeyboardMarkup(keyboard)
+            bot.send_message(
+                chat_id=message.chat_id,
+                text=f"*{target_notice.title}*\n{target_notice.summary}...",
+                reply_markup=menu_markup,
+                parse_mode=ParseMode.MARKDOWN
+            )
+        else:
+            bot.send_message(chat_id=message.chat_id, text="No such notice.")
+
     def send_latest_notice(self, *, bot, message, length, start=0):
         text = ""
         buttons = []

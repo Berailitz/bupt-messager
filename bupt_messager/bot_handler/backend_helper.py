@@ -57,11 +57,14 @@ class BackendHelper(object):
             width=5,
             footer_buttons=[InlineKeyboardButton(text='more', callback_data=f'latest_{length}_{start + length}')]
         )
-        bot.send_message(
-            chat_id=message.chat_id,
-            text=text,
-            parse_mode=ParseMode.MARKDOWN,
-            reply_markup=keyboard)
+        if text:
+            bot.send_message(
+                chat_id=message.chat_id,
+                text=text,
+                parse_mode=ParseMode.MARKDOWN,
+                reply_markup=keyboard)
+        else:
+            bot.send_message(chat_id=message.chat_id, text='No more news.')
 
     @staticmethod
     def prase_callback(update):

@@ -37,6 +37,7 @@ class BotBackend(object):
         length = try_int(args[0]) if args else 1
         start = try_int(args[1]) if args[1:] else 0
         self.backend_helper.send_latest_notice(bot=bot, message=update.callback_query.message, length=length, start=start)
+        update.callback_query.answer()
 
     @staticmethod
     def yo_command(bot, update):
@@ -68,6 +69,7 @@ class BotBackend(object):
         args = self.backend_helper.prase_callback(update)
         index = try_int(args[0]) if args else 0
         self.backend_helper.send_notice(bot, update.callback_query.message, index)
+        update.callback_query.answer()
 
     @staticmethod
     def unknown_command(bot, update):

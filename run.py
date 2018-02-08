@@ -8,10 +8,10 @@ import threading
 from bupt_messager.bupt_messager import BUPTMessager
 
 def main():
-    if '--debug' in sys.argv:
-        bupt_messager = BUPTMessager(debug_mode=True)
-    else:
-        bupt_messager = BUPTMessager()
+    debug_mode = '--debug' in sys.argv
+    no_bot_mode = '--no-bot' in sys.argv
+    no_spider_mode = '--no-spider' in sys.argv
+    bupt_messager = BUPTMessager(debug_mode=debug_mode, no_bot_mode=no_bot_mode, no_spider_mode=no_spider_mode)
     try:
         bupt_messager.start()
     except Exception as identifier:

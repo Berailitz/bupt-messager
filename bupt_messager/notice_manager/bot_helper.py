@@ -17,5 +17,5 @@ class BotHelper(object):
         menu_markup = InlineKeyboardMarkup(keyboard)
         chat_id_list = self.sql_handle.get_chat_ids()
         for chat_id in chat_id_list:
-            self.bot.send_message(chat_id=chat_id, text=f"{notice_dict['title']}\n{notice_dict['summary']}", reply_markup=menu_markup)
-        logging.info(f'Broadcast to {len(chat_id_list)} subscribers.')
+            self.bot.send_message(chat_id=chat_id, text=f"*{notice_dict['title']}*\n{notice_dict['summary']}", reply_markup=menu_markup)
+        logging.info(f'BotHelper: Broadcast to {len(chat_id_list)} subscribers.')

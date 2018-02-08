@@ -46,7 +46,7 @@ class BackendHelper(object):
             menu.append(footer_buttons)
         return InlineKeyboardMarkup(menu)
 
-    def send_latest_notice(self, *, bot, update, length, start=0):
+    def send_latest_notice(self, *, bot, message, length, start=0):
         text = ""
         buttons = []
         for index, notice in enumerate(self.sql_handle.get_latest_notices(length=length, start=start)):
@@ -58,7 +58,7 @@ class BackendHelper(object):
             footer_buttons=[InlineKeyboardButton(text='more', callback_data=f'latest_{length}_{start + length}')]
         )
         bot.send_message(
-            chat_id=update.message.chat_id,
+            chat_id=message.chat_id,
             text=text,
             parse_mode=ParseMode.MARKDOWN,
             reply_markup=keyboard)

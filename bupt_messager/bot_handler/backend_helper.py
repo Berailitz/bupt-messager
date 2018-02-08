@@ -51,7 +51,7 @@ class BackendHelper(object):
         buttons = []
         for index, notice in enumerate(self.sql_handle.get_latest_notices(length=length, start=start)):
             text += f'{index + 1}.[{notice.title}]({notice.url})({notice.date})\n'
-            buttons.append(InlineKeyboardButton(text=f'{index + 1}', callback_data=f'read_{index + 1}'))
+            buttons.append(InlineKeyboardButton(text=f'{index + 1}', callback_data=f'read_{start + index}'))
         keyboard = self.markup_keyboard(
             buttons=buttons,
             width=5,

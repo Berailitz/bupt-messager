@@ -64,15 +64,15 @@ class BotBackend(object):
 
     def read_command(self, bot, update, args):
         index = try_int(args[0]) if args else 1
-        self.send_notice(bot, update.message, index)
+        self.send_notice(bot, update.message, index - 1)
 
     def read_callback(self, bot, update):
         args = self.backend_helper.prase_callback(update)
-        index = try_int(args[0]) if args else 1
+        index = try_int(args[0]) if args else 0
         self.send_notice(bot, update.callback_query.message, index)
 
     def send_notice(self, bot, message, index):
-        notice_list = self.sql_handle.get_latest_notices(length=1, start=index - 1)
+        notice_list = self.sql_handle.get_latest_notices(length=1, start=index)
         if notice_list:
             target_notice = notice_list[0]
             self._send_notice(bot, target_notice=target_notice, chat_id=message.chat_id)

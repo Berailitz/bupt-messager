@@ -1,5 +1,5 @@
 import logging
-from telegram.ext import Filters, Updater, CommandHandler, MessageHandler
+from telegram.ext import Filters, Updater, CallbackQueryHandler, CommandHandler, MessageHandler
 from ..config import WEB_HOOK_PORT, WEB_HOOK_URL, WEB_HOOK_URL_PATH
 from ..sql_handle import SQLHandle
 from .bot_backend import BotBackend
@@ -28,6 +28,8 @@ class BotHandler(object):
         dispatcher.add_handler(status_handler)
         read_handler = CommandHandler('read', self.bot_backend.read_command, pass_args=True)
         dispatcher.add_handler(read_handler)
+        read_callback = CallbackQueryHandler(pattern='^read_', callback=self.bot_backend.read_command)
+        dispatcher.add_handler(read_callback)
         yo_handler = CommandHandler('yo', self.bot_backend.yo_command)
         dispatcher.add_handler(yo_handler)
         restart_handler = CommandHandler('restart', self.bot_backend.restart_command)

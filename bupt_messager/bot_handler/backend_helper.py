@@ -62,3 +62,7 @@ class BackendHelper(object):
             text=text,
             parse_mode=ParseMode.MARKDOWN,
             reply_markup=keyboard)
+
+    @staticmethod
+    def prase_callback(update):
+        return update.callback_query.data.split('_')[1:]

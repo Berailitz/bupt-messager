@@ -58,6 +58,14 @@ class BotBackend(object):
 
     def read_command(self, bot, update, args):
         index = try_int(args[0]) if args else 1
+        self.send_notice(index, bot, update)
+
+    def read_callback(self, bot, update):
+        args = self.backend_helper.prase_callback(update)
+        index = try_int(args[0]) if args else 1
+        self.send_notice(index, bot, update)
+
+    def send_notice(self, bot, update, index):
         notice_list = self.sql_handle.get_latest_notices(length=1, start=index - 1)
         if notice_list:
             target_notice = notice_list[0]

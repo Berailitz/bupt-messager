@@ -34,6 +34,12 @@ class BotBackend(object):
             return
         self.backend_helper.send_latest_notice(bot=bot, update=update, length=length, start=0)
 
+    def latest_callback(self, bot, update):
+        args = self.backend_helper.prase_callback(update)
+        length = try_int(args[0]) if args else 1
+        start = try_int(args[1]) if args[1:] else 0
+        self.backend_helper.send_latest_notice(bot=bot, update=update, length=length, start=start)
+
     @staticmethod
     def yo_command(bot, update):
         bot.send_message(chat_id=update.message.chat_id, text='Yo~')
@@ -79,7 +85,7 @@ class BotBackend(object):
         menu_markup = InlineKeyboardMarkup(keyboard)
         bot.send_message(
             chat_id=chat_id,
-            text=f"*{target_notice.title}*\n{target_notice.summary}",
+            text=f"*{target_notice.title}*\n{target_notice.summary}...",
             reply_markup=menu_markup,
             parse_mode=ParseMode.MARKDOWN
         )

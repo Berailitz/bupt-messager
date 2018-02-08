@@ -24,6 +24,8 @@ class BotHandler(object):
         dispatcher.add_handler(start_handler)
         latest_handler = CommandHandler('latest', self.bot_backend.latest_command, pass_args=True)
         dispatcher.add_handler(latest_handler)
+        latest_callback = CallbackQueryHandler(pattern='^latest_', callback=self.bot_backend.latest_callback)
+        dispatcher.add_handler(latest_callback)
         status_handler = CommandHandler('status', self.bot_backend.status_command, pass_args=True)
         dispatcher.add_handler(status_handler)
         read_handler = CommandHandler('read', self.bot_backend.read_command, pass_args=True)

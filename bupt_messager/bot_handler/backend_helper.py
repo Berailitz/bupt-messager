@@ -55,7 +55,7 @@ class BackendHelper(object):
         keyboard = self.markup_keyboard(
             buttons=buttons,
             width=5,
-            footer_buttons=[InlineKeyboardButton(text='more', callback_data=f'latest_{length}_{length}')]
+            footer_buttons=[InlineKeyboardButton(text='more', callback_data=f'latest_{length}_{start + length}')]
         )
         bot.send_message(
             chat_id=update.message.chat_id,

@@ -11,9 +11,11 @@ from .queued_bot import create_queued_bot
 from .sql_handle import SQLManager
 
 class BUPTMessager(object):
-    def __init__(self, debug_mode=False):
+    def __init__(self, *, debug_mode=False, no_bot_mode=False, no_spider_mode=False):
         sql_manager = SQLManager()
         self.debug_mode = debug_mode
+        self.no_bot_mode = no_bot_mode
+        self.no_spider_mode = no_spider_mode
         queued_bot = create_queued_bot()
         self.notice_manager = create_notice_manager(sql_manager=sql_manager, bot=queued_bot)
         self.bot_handler = BotHandler(sql_manager=sql_manager, bot=queued_bot)
@@ -36,8 +38,10 @@ class BUPTMessager(object):
             set_logger(log_path, console_level=logging.INFO, file_level=logging.INFO)
 
     def start(self):
-        self.notice_manager.start()
-        self.bot_handler.start()
+        if not self.no_spider_mode:
+            self.notice_manager.start()
+        if not self.no_bot_mode:
+            self.bot_handler.start()
         while True:
             logging.info(f'Workers: {threading.enumerate()}')
             time.sleep(MESSAGER_PRINT_INTERVAL)
@@ -45,6 +49,8 @@ class BUPTMessager(object):
     def stop(self, signum=None, frame=None):
         if signum:
             logging.warning(f'BUPTMessager: Stop due to signal: {signum}')
-        self.notice_manager.stop()
-        self.bot_handler.stop()
-        self.notice_manager.join()
+        if not self.no_bot_mode:
+            self.bot_handler.stop()
+        if not self.no_spider_mode:
+            self.notice_manager.stop()
+            self.notice_manager.join()

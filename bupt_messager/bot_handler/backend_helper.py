@@ -34,9 +34,12 @@ class BackendHelper(object):
     @threaded
     def restart_app(self, args):
         """Gracefully stop the Updater and replace the current process with a new one"""
-        start_commands = ['--' + arg for arg in args if arg in BOT_START_VALID_ARGS]
         self.updater.stop()
-        os.execl(sys.executable, sys.executable, sys.argv[0], *start_commands)
+        if args:
+            start_commands = ['--' + arg for arg in args if arg in BOT_START_VALID_ARGS]
+            os.execl(sys.executable, sys.executable, sys.argv[0], *start_commands)
+        else:
+            os.execl(sys.executable, sys.executable, *sys.argv)
 
     @staticmethod
     def markup_keyboard(buttons, width, header_buttons=None, footer_buttons=None):

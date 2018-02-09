@@ -4,7 +4,7 @@ import os
 import sys
 import telegram
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
-from ..config import BOT_ADMIN_IDS, BOT_NOTICE_MAX_BUTTON_PER_LINE
+from ..config import BOT_ADMIN_IDS, BOT_NOTICE_MAX_BUTTON_PER_LINE, BOT_START_VALID_ARGS
 from ..mess import get_arg, threaded
 
 def admin_only(func):
@@ -32,10 +32,11 @@ class BackendHelper(object):
         self.updater = updater
 
     @threaded
-    def restart_app(self):
+    def restart_app(self, args):
         """Gracefully stop the Updater and replace the current process with a new one"""
+        start_commands = ['--' + arg for arg in args if arg in BOT_START_VALID_ARGS]
         self.updater.stop()
-        os.execl(sys.executable, sys.executable, *sys.argv)
+        os.execl(sys.executable, sys.executable, sys.argv[0], *start_commands)
 
     @staticmethod
     def markup_keyboard(buttons, width, header_buttons=None, footer_buttons=None):

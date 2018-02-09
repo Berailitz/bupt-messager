@@ -58,7 +58,7 @@ class BotBackend(object):
             logging.info(f'BotBackend.status_command: {identifier}')
             return
         latest_records = self.sql_handle.get_latest_status(datetime.now() - timedelta(hours=BOT_STATUS_STATISTIC_HOUR))
-        error_records = [record for record in latest_records if record.status != STATUS_SYNCED]
+        error_records = [record for record in latest_records if record.status != STATUS_SYNCED] if latest_records else []
         error_rate = len(error_records) / len(latest_records) if latest_records else 0
         text = ""
         for status in latest_records[:length]:

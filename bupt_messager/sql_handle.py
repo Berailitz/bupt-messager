@@ -81,7 +81,7 @@ class SQLHandle(object):
 
     @load_session
     def get_latest_status(my_session, start, end=datetime.now()):
-        my_session.query(Status).filter(Status.time.between(start, end)).all()
+        return my_session.query(Status).filter(Status.time.between(start, end)).all()
 
     @load_session
     def insert_status(my_session, status_code):

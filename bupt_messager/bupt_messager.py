@@ -9,7 +9,7 @@ from .notice_manager.notice_manager import create_notice_manager
 from .bot_handler.bot_handler import BotHandler
 from .config import MESSAGER_PRINT_INTERVAL
 from .queued_bot import create_queued_bot
-from .sql_handle import SQLManager
+from .sql_handler import SQLManager
 
 
 class BUPTMessager(object):

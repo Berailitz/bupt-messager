@@ -1,6 +1,5 @@
 """Describe backend logic."""
 import logging
-import telegram
 from datetime import datetime, timedelta
 from ..config import BOT_NOTICE_LIST_LENGTH, BOT_STATUS_LIST_LENGTH, BOT_STATUS_STATISTIC_HOUR, STATUS_SYNCED
 from ..mess import try_int
@@ -10,19 +9,19 @@ from .backend_helper import admin_only, BackendHelper
 class BotBackend(object):
     """Backend logic.
 
-    :member sql_handle: Attached :obj:SQLHadnle.
-    :type sql_handle: SQLHadnle.
+    :member sql_handler: Attached :obj:SQLHadnle.
+    :type sql_handler: SQLHadnle.
     :member updater: Active updater.
     :type updater: telegram.ext.Updater.
     """
-    def __init__(self, *, sql_handle=None, updater=None):
-        self.sql_handle = sql_handle
+    def __init__(self, *, sql_handler=None, updater=None):
+        self.sql_handler = sql_handler
         self.updater = updater
-        self.backend_helper = BackendHelper(sql_handle=sql_handle, updater=updater)
+        self.backend_helper = BackendHelper(sql_handler=sql_handler, updater=updater)
 
-    def init_sql_handle(self, sql_handle):
-        self.sql_handle = sql_handle
-        self.backend_helper.init_sql_handle(sql_handle)
+    def init_sql_handle(self, sql_handler):
+        self.sql_handler = sql_handler
+        self.backend_helper.init_sql_handle(sql_handler)
 
     def init_updater(self, updater):
         self.updater = updater
@@ -32,7 +31,7 @@ class BotBackend(object):
         """Say Welcome when receiving command `/start`.
         """
         bot.send_message(chat_id=update.message.chat_id, text="Welcome.")
-        insert_result = self.sql_handle.insert_chat(update.message.chat_id)
+        insert_result = self.sql_handler.insert_chat(update.message.chat_id)
         if insert_result is not None:
             logging.info(f'BotBackend.start_command: new chat `{insert_result.id}`.')
 
@@ -79,7 +78,7 @@ class BotBackend(object):
             bot.send_message(chat_id=update.message.chat_id, text="Didn't understand...")
             logging.info(f'BotBackend.status_command: {identifier}')
             return
-        latest_records = self.sql_handle.get_latest_status(datetime.now() - timedelta(hours=BOT_STATUS_STATISTIC_HOUR))
+        latest_records = self.sql_handler.get_latest_status(datetime.now() - timedelta(hours=BOT_STATUS_STATISTIC_HOUR))
         error_records = [record for record in latest_records if record.status != STATUS_SYNCED] if latest_records else []
         error_rate = len(error_records) / len(latest_records) if latest_records else 0
         text = ""

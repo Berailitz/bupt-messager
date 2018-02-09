@@ -31,17 +31,17 @@ def admin_only(func):
 class BackendHelper(object):
     """Tools for `BotBackend`.
 
-    :member sql_handle: Attached :obj: SQLHandle.
-    :type sql_handle: SQLHandle.
+    :member sql_handler: Attached :obj: SQLHandler.
+    :type sql_handler: SQLHandler.
     :member updater: Attached :obj: bot updater.
     :type updater: Updater.
     """
-    def __init__(self, *, sql_handle=None, updater=None):
-        self.sql_handle = sql_handle
+    def __init__(self, *, sql_handler=None, updater=None):
+        self.sql_handler = sql_handler
         self.updater = updater
 
-    def init_sql_handle(self, sql_handle):
-        self.sql_handle = sql_handle
+    def init_sql_handle(self, sql_handler):
+        self.sql_handler = sql_handler
 
     def init_updater(self, updater):
         self.updater = updater
@@ -97,7 +97,7 @@ class BackendHelper(object):
         :param index: Index of the message to be sent.
         :type index: int.
         """
-        notice_list = self.sql_handle.get_latest_notices(length=1, start=index)
+        notice_list = self.sql_handler.get_latest_notices(length=1, start=index)
         if notice_list:
             target_notice = notice_list[0]
             keyboard = [[InlineKeyboardButton('READ', target_notice.url)]]
@@ -123,7 +123,7 @@ class BackendHelper(object):
         """
         text = ""
         buttons = []
-        for index, notice in enumerate(self.sql_handle.get_latest_notices(length=length, start=start)):
+        for index, notice in enumerate(self.sql_handler.get_latest_notices(length=length, start=start)):
             text += f'{index + 1}.[{notice.title}]({notice.url})({notice.date})\n'
             buttons.append(InlineKeyboardButton(text=f'{index + 1}', callback_data=f'read_{start + index}'))
         keyboard = self.markup_keyboard(

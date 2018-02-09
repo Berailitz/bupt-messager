@@ -4,7 +4,7 @@
 import logging
 from ..bupt_messager.bot_handler.bot_handler import BotHandler
 from ..bupt_messager.queued_bot import create_queued_bot
-from ..bupt_messager.sql_handle import SQLManager
+from ..bupt_messager.sql_handler import SQLManager
 from ..bupt_messager.mess import get_current_time, set_logger
 
 

@@ -55,14 +55,14 @@ def load_session(func: Callable):
     return wrapper
 
 
-class SQLHandle(object):
+class SQLHandler(object):
     """Handler for SQL requests.
     """
     def __init__(self, sql_manager=None):
         self.sql_manager = sql_manager
 
     def init_sql_manager(self, sql_manager=None):
-        """Initialize SQLHandle with `sql_manager`.
+        """Initialize SQLHandler with `sql_manager`.
 
         :param sql_manager: Manage sessions, defaults to `None`.
         :type sql_manager: SQLManager, optional.
@@ -70,7 +70,7 @@ class SQLHandle(object):
         if sql_manager:
             self.sql_manager = sql_manager
         else:
-            logging.warning('SQLHandle: No `sql_manager` specified, another `scoped_session` will be opened.')
+            logging.warning('SQLHandler: No `sql_manager` specified, another `scoped_session` will be opened.')
             self.sql_manager = SQLManager()
 
     @load_session
@@ -96,7 +96,7 @@ class SQLHandle(object):
         attachment_list = [Attachment(**attachment_dict) for attachment_dict in notice_dict.pop('attachments')]
         new_notice = Notification(**notice_dict)
         new_notice.attachments = attachment_list
-        logging.info(f'SQLHandle: Adding notice `{new_notice.title}` with {len(attachment_list)} attachments.')
+        logging.info(f'SQLHandler: Adding notice `{new_notice.title}` with {len(attachment_list)} attachments.')
         my_session.add(new_notice)
         my_session.commit()
         return new_notice

@@ -1,7 +1,7 @@
 import logging
 from telegram.ext import Filters, Updater, CallbackQueryHandler, CommandHandler, MessageHandler
 from ..config import WEB_HOOK_PORT, WEB_HOOK_URL, WEB_HOOK_URL_PATH
-from ..sql_handle import SQLHandle
+from ..sql_handler import SQLHandler
 from .bot_backend import BotBackend
 
 
@@ -16,12 +16,12 @@ class BotHandler(object):
     def __init__(self, sql_manager=None, bot=None):
         self.updater = Updater(bot=bot) if bot else None
         self.bot_backend = BotBackend(
-            sql_handle=SQLHandle(sql_manager=sql_manager),
+            sql_handler=SQLHandler(sql_manager=sql_manager),
             updater=self.updater
         )
 
     def init_bot_backend(self, sql_manager):
-        self.bot_backend.sql_handle.init_sql_manager(sql_manager)
+        self.bot_backend.sql_handler.init_sql_manager(sql_manager)
 
     def init_updater(self, bot):
         self.updater = Updater(bot=bot)

@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL, NOTICE_UPDATE_ERROR_SLEEP_TIME
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH
 from ..config import STATUS_ERROR_DOWNLOAD, STATUS_ERROR_LOGIN_AUTH, STATUS_ERROR_LOGIN_WEBVPN, STATUS_SYNCED
-from ..sql_handle import SQLHandle
+from ..sql_handler import SQLHandler
 from .bot_helper import BotHelper
 from .http_client import HTTPClient
 from .login_helper.auth_helper import AuthHelper
@@ -33,11 +33,11 @@ def change_status(*, error_status: int = None, ok_status: int = None):
                 result = func(*args, **kw)
             except Exception as identifier:
                 if error_status is not None:
-                    self.sql_handle.insert_status(error_status)
+                    self.sql_handler.insert_status(error_status)
                 raise identifier
             else:
                 if ok_status is not None:
-                    self.sql_handle.insert_status(ok_status)
+                    self.sql_handler.insert_status(ok_status)
             return result
         return wrapper
     return decorator
@@ -48,13 +48,13 @@ class NoticeManager(threading.Thread):
 
     :member _stop_event: :obj:`threading.Event` to stop manager.
     """
-    def __init__(self, sql_handle=None, bot=None, http_client=None):
+    def __init__(self, sql_handler=None, bot=None, http_client=None):
         super().__init__()
         self.http_client = http_client or HTTPClient()
-        self.sql_handle = sql_handle
+        self.sql_handler = sql_handler
         self.webvpn_helper = WebVPNHelper(self.http_client)
         self.auth_helper = AuthHelper(self.http_client)
-        self.bot_helper = BotHelper(self.sql_handle, bot)
+        self.bot_helper = BotHelper(self.sql_handler, bot)
         self._stop_event = threading.Event()
 
     @change_status(error_status=STATUS_ERROR_LOGIN_WEBVPN)
@@ -111,7 +111,7 @@ class NoticeManager(threading.Thread):
         notice_list = self._doanload_notice()
         for notice_dict in notice_list:
             self._shape_notice(notice_dict)
-            self.sql_handle.insert_notice(notice_dict)
+            self.sql_handler.insert_notice(notice_dict)
             self.bot_helper.broadcast_notice(notice_dict)
             update_counter += 1
         logging.info(f'{update_counter} notifications inserted.')
@@ -148,7 +148,7 @@ class NoticeManager(threading.Thread):
             notice_url = NOTICE_BASEURL + notice_link['href']
             notice_id = parse_qs(urlsplit(notice_url).query)['bulletinId'][0]
             notice_title = notice_link.text
-            if self.sql_handle.is_new_notice(notice_id):
+            if self.sql_handler.is_new_notice(notice_id):
                 notice_info = dict()
                 notice_info['url'] = notice_url
                 notice_info['id'] = notice_id
@@ -180,6 +180,6 @@ def create_notice_manager(sql_manager, bot):
     :return: New :obj:`NoticeManager`.
     :rtype: NoticeManager.
     """
-    sql_handle = SQLHandle(sql_manager)
-    notice_manager = NoticeManager(sql_handle=sql_handle, bot=bot)
+    sql_handler = SQLHandler(sql_manager)
+    notice_manager = NoticeManager(sql_handler=sql_handler, bot=bot)
     return notice_manager

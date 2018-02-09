@@ -61,7 +61,7 @@ class BotBackend(object):
         error_records = [record for record in latest_records if record.status != STATUS_SYNCED] if latest_records else []
         error_rate = len(error_records) / len(latest_records) if latest_records else 0
         text = ""
-        for status in latest_records[:length]:
+        for status in latest_records[-length:]:
             text += f'{status.time}: {status.status_text}\n'
         text += f'Error rate: {100 * error_rate:.2f}%.'
         bot.send_message(chat_id=update.message.chat_id, text=text)

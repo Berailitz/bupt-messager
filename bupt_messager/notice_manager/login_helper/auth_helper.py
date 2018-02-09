@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from ...config import AUTH_PASSWORD, AUTH_USERNAME
 from .login_helper import LoginHelper
 
+
 class AuthHelper(LoginHelper):
     def __init__(self, http_client):
         super().__init__(http_client=http_client)

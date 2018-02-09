@@ -6,6 +6,7 @@ from ..config import BOT_NOTICE_LIST_LENGTH, BOT_STATUS_LIST_LENGTH, BOT_STATUS_
 from ..mess import try_int
 from .backend_helper import admin_only, BackendHelper
 
+
 class BotBackend(object):
     """Backend logic.
 

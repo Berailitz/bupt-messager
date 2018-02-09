@@ -3,6 +3,7 @@ import logging
 import time
 from ...config import LOGIN_MAX_ATTEMPT, LOGIN_WAIT_INTERVEL
 
+
 class LoginHelper(object):
     """Base class for login.
     """

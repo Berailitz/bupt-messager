@@ -10,6 +10,7 @@ from sqlalchemy.orm.session import Session
 from .config import SQLALCHEMY_DATABASE_URI
 from .models import Attachment, Base, Chat, Notification, Status
 
+
 class SQLManager(object):
     """Manager sessions.
 
@@ -38,6 +39,7 @@ class SQLManager(object):
             session.close()
             self.session_maker.remove()
 
+
 def load_session(func: Callable):
     """Load new session and add session as the first argument of `func`.
 
@@ -51,6 +53,7 @@ def load_session(func: Callable):
         with args[0].sql_manager.create_session() as my_session:
             return func(my_session, *args[1:], **kw)
     return wrapper
+
 
 class SQLHandle(object):
     """Handler for SQL requests.

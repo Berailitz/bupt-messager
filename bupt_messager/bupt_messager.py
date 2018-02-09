@@ -5,7 +5,7 @@ import signal
 import threading
 import time
 from .mess import set_logger
-from .notice_manager.app import create_notice_manager
+from .notice_manager.notice_manager import create_notice_manager
 from .bot_handler.bot_handler import BotHandler
 from .config import MESSAGER_PRINT_INTERVAL
 from .queued_bot import create_queued_bot

@@ -7,16 +7,7 @@ from .config import STATUS_TEXT_DICT
 
 Base = declarative_base()
 
-"""
-CREATE TABLE `notification` (
-  `id` varchar(36) NOT NULL,
-  `text` text NOT NULL,
-  `title` varchar(80) NOT NULL,
-  `url` text NOT NULL,
-  `summary` text NOT NULL,
-  `date` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-"""
+
 class Notification(Base):
     """Table notification.
 
@@ -44,14 +35,7 @@ class Notification(Base):
     def __repr__(self):
         return f"<Notification(id='{self.id}', title='{self.title}')>"
 
-"""
-CREATE TABLE `attachment` (
-  `id` int(11) NOT NULL,
-  `notice_id` varchar(36) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `url` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-"""
+
 class Attachment(Base):
     """Table attachment.
 
@@ -75,11 +59,7 @@ class Attachment(Base):
     def __repr__(self):
         return f"<Attachment(name='{self.name}')>"
 
-"""
-CREATE TABLE `chat` (
-  `id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-"""
+
 class Chat(Base):
     """Table chat.
 
@@ -93,12 +73,7 @@ class Chat(Base):
     def __repr__(self):
         return f"<Chat(id='{self.id}')>"
 
-"""
-CREATE TABLE `status` (
-  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-"""
+
 class Status(Base):
     """Table status.
 

@@ -8,6 +8,7 @@ from PIL import Image
 from ...config import TESSERACT_CMD, WEB_VPN_ALLOW_ERROR, WEB_VPN_PASSWORD, WEB_VPN_USERNAME
 from .login_helper import LoginHelper
 
+
 class WebVPNHelper(LoginHelper):
     """Connnect to web VPN.
     """

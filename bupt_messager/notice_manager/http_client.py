@@ -3,6 +3,7 @@ import logging
 import requests
 from ..config import HTTP_CLIENT_MAX_RETRIES, HTTP_CLIENT_REFERER, HTTP_CLIENT_TIME_OUT
 
+
 class HTTPClient:
     """Client for HTTP requests..
 

@@ -4,6 +4,7 @@ from ..config import WEB_HOOK_PORT, WEB_HOOK_URL, WEB_HOOK_URL_PATH
 from ..sql_handle import SQLHandle
 from .bot_backend import BotBackend
 
+
 class BotHandler(object):
     """Register backend logic.
 

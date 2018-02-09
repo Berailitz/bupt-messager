@@ -4,6 +4,7 @@ import telegram.bot
 from telegram.ext import messagequeue
 from .config import BOT_ALL_BURST_LIMIT, BOT_GROUP_BURST_LIMIT, BOT_TOKEN, PROXY_URL
 
+
 class QueuedBot(telegram.bot.Bot):
     """A bot which delegates send method handling to message queues.
 
@@ -43,6 +44,7 @@ class QueuedBot(telegram.bot.Bot):
         and accept new `queued` and `isgroup` keyword arguments.
         """
         return super().send_message(*args, **kwargs)
+
 
 def create_queued_bot():
     """Factorial function to create queued bot.

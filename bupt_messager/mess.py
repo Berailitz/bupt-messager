@@ -7,7 +7,9 @@ import threading
 import time
 from typing import Callable
 
+
 get_current_time = lambda: time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+
 
 def set_logger(log_file_path: str, console_level=logging.INFO, file_level=logging.INFO):
     """Initialize logging module.
@@ -36,6 +38,7 @@ def set_logger(log_file_path: str, console_level=logging.INFO, file_level=loggin
     logging.getLogger(name=None).addHandler(file_hanfler)
     logging.info("Start ....")
 
+
 def try_int(text, default=None):
     """Try to convert `text` to an int, return `default` if failed.
 
@@ -48,6 +51,7 @@ def try_int(text, default=None):
         return int(text)
     except ValueError:
         return default
+
 
 def get_arg(target: type, args: list, kwargs: dict):
     """Select argument with type `target` in `args` and kwargs.
@@ -66,6 +70,7 @@ def get_arg(target: type, args: list, kwargs: dict):
         if isinstance(value, target):
             return value
     raise ValueError(f'No such value: {target}')
+
 
 def threaded(target_function: Callable) -> threading.Thread:
     """Start a function in another thread and return it.

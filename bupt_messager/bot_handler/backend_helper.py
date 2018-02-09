@@ -9,6 +9,7 @@ from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup, Upda
 from ..config import BOT_ADMIN_IDS, BOT_NOTICE_MAX_BUTTON_PER_LINE, BOT_RESTART_ARG_NO_ARG, BOT_START_VALID_ARGS
 from ..mess import get_arg, threaded
 
+
 def admin_only(func):
     """Decorated function will be restricted to admins listed in `BOT_ADMIN_IDS` only.
     """
@@ -25,6 +26,7 @@ def admin_only(func):
             return
         return func(*args, **kwargs)
     return wrapped
+
 
 class BackendHelper(object):
     """Tools for `BotBackend`.

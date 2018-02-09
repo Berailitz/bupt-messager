@@ -5,9 +5,8 @@
 try:
     from .credentials import *
 except ImportError as credentials_import_error:
-    print(credentials_import_error.msg)
-    credentials_import_error.msg = "Failed to import credentials. Please make sure `credentials.py` exists."
-    raise credentials_import_error
+    print(credentials_import_error.args)
+    raise ImportError("Failed to import credentials. Please make sure `credentials.py` exists.")
 
 HTTP_CLIENT_MAX_RETRIES = 4
 HTTP_CLIENT_TIME_OUT = 10

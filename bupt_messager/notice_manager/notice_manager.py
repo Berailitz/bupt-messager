@@ -9,10 +9,39 @@ from bs4 import BeautifulSoup
 from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL, NOTICE_UPDATE_ERROR_SLEEP_TIME
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH
 from ..config import STATUS_ERROR_DOWNLOAD, STATUS_ERROR_LOGIN_AUTH, STATUS_ERROR_LOGIN_WEBVPN, STATUS_SYNCED
+from ..sql_handle import SQLHandle
 from .bot_helper import BotHelper
 from .http_client import HTTPClient
 from .login_helper.auth_helper import AuthHelper
 from .login_helper.web_vpn_helper import WebVPNHelper
+
+
+def change_status(*, error_status: int = None, ok_status: int = None):
+    """Decorated functions will insert `ok_status` or `error_status` into table `status`,
+    if any error occured.
+
+    :param error_status: Error status code, defaults to None and not log will be inserted.
+    :type error_status: int, optional.
+    :param ok_status: Status code for success, defaults to None and not log will be inserted.
+    :type ok_status: int, optional.
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kw):
+            self = args[0]
+            try:
+                result = func(*args, **kw)
+            except Exception as identifier:
+                if error_status is not None:
+                    self.sql_handle.insert_status(error_status)
+                raise identifier
+            else:
+                if ok_status is not None:
+                    self.sql_handle.insert_status(ok_status)
+            return result
+        return wrapper
+    return decorator
+
 
 class NoticeManager(threading.Thread):
     """Fetch notices from `my.bupt.edu.cn`.
@@ -27,32 +56,6 @@ class NoticeManager(threading.Thread):
         self.auth_helper = AuthHelper(self.http_client)
         self.bot_helper = BotHelper(self.sql_handle, bot)
         self._stop_event = threading.Event()
-
-    def change_status(*, error_status: int = None, ok_status: int = None):
-        """Decorated functions will insert `ok_status` or `error_status` into table `status`,
-        if any error occured.
-
-        :param error_status: Error status code, defaults to None and not log will be inserted.
-        :type error_status: int, optional.
-        :param ok_status: Status code for success, defaults to None and not log will be inserted.
-        :type ok_status: int, optional.
-        """
-        def decorator(func):
-            @functools.wraps(func)
-            def wrapper(*args, **kw):
-                self = args[0]
-                try:
-                    result = func(*args, **kw)
-                except Exception as identifier:
-                    if error_status is not None:
-                        self.sql_handle.insert_status(error_status)
-                    raise identifier
-                else:
-                    if ok_status is not None:
-                        self.sql_handle.insert_status(ok_status)
-                return result
-            return wrapper
-        return decorator
 
     @change_status(error_status=STATUS_ERROR_LOGIN_WEBVPN)
     def _login_webvpn(self):
@@ -168,3 +171,15 @@ class NoticeManager(threading.Thread):
                 logging.info(f'NoticeManager: Duplicate notice `{notice_title}`.')
         logging.info('NoticeManager: Praser finished.')
         return notice_list
+
+def create_notice_manager(sql_manager, bot):
+    """Create a `NoticeManager`.
+
+    :param sql_manager: Manager `session`s.
+    :type sql_manager: SQLManager.
+    :return: New :obj:`NoticeManager`.
+    :rtype: NoticeManager.
+    """
+    sql_handle = SQLHandle(sql_manager)
+    notice_manager = NoticeManager(sql_handle=sql_handle, bot=bot)
+    return notice_manager

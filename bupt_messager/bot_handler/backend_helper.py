@@ -36,7 +36,9 @@ class BackendHelper(object):
         """Gracefully stop the Updater and replace the current process with a new one"""
         start_commands = ['--' + arg for arg in args if arg in BOT_START_VALID_ARGS]
         self.updater.stop()
-        if start_commands and BOT_RESTART_ARG_NO_ARG not in args:
+        if BOT_RESTART_ARG_NO_ARG in args:
+            os.execl(sys.executable, sys.executable, sys.argv[0])
+        elif start_commands:
             os.execl(sys.executable, sys.executable, sys.argv[0], *start_commands)
         else:
             os.execl(sys.executable, sys.executable, *sys.argv)

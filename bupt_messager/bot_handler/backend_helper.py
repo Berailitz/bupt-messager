@@ -4,7 +4,7 @@ import os
 import sys
 import telegram
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
-from ..config import BOT_ADMIN_IDS, BOT_NOTICE_MAX_BUTTON_PER_LINE, BOT_START_VALID_ARGS
+from ..config import BOT_ADMIN_IDS, BOT_NOTICE_MAX_BUTTON_PER_LINE, BOT_RESTART_ARG_NO_ARG, BOT_START_VALID_ARGS
 from ..mess import get_arg, threaded
 
 def admin_only(func):
@@ -34,9 +34,9 @@ class BackendHelper(object):
     @threaded
     def restart_app(self, args):
         """Gracefully stop the Updater and replace the current process with a new one"""
+        start_commands = ['--' + arg for arg in args if arg in BOT_START_VALID_ARGS]
         self.updater.stop()
-        if args:
-            start_commands = ['--' + arg for arg in args if arg in BOT_START_VALID_ARGS]
+        if start_commands and BOT_RESTART_ARG_NO_ARG not in args:
             os.execl(sys.executable, sys.executable, sys.argv[0], *start_commands)
         else:
             os.execl(sys.executable, sys.executable, *sys.argv)

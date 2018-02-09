@@ -1,6 +1,7 @@
 import functools
 import logging
 from contextlib import contextmanager
+from datetime import datetime
 from sqlalchemy import create_engine, exists
 from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 from .config import SQLALCHEMY_DATABASE_URI
@@ -79,8 +80,8 @@ class SQLHandle(object):
         return None
 
     @load_session
-    def get_latest_status(my_session, length, start=0):
-        return my_session.query(Status).order_by(Status.time.desc())[start:][:length]
+    def get_latest_status(my_session, start, end=datetime.now()):
+        my_session.query(Status).filter(Status.time.between(start, end)).all()
 
     @load_session
     def insert_status(my_session, status_code):

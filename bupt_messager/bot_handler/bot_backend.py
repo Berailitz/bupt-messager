@@ -1,5 +1,6 @@
 import logging
-from ..config import BOT_NOTICE_LIST_LENGTH, BOT_STATUS_LIST_LENGTH
+from datetime import datetime, timedelta
+from ..config import BOT_NOTICE_LIST_LENGTH, BOT_STATUS_LIST_LENGTH, BOT_STATUS_STATISTIC_HOUR, STATUS_SYNCED
 from ..mess import try_int
 from .backend_helper import admin_only, BackendHelper
 
@@ -56,9 +57,13 @@ class BotBackend(object):
             bot.send_message(chat_id=update.message.chat_id, text="Didn't understand...")
             logging.info(f'BotBackend.status_command: {identifier}')
             return
+        latest_records = self.sql_handle.get_latest_status(datetime.now() - timedelta(hours=BOT_STATUS_STATISTIC_HOUR))
+        error_records = [record for record in latest_records if record.status != STATUS_SYNCED] if latest_records else []
+        error_rate = len(error_records) / len(latest_records) if latest_records else 0
         text = ""
-        for status in self.sql_handle.get_latest_status(length):
+        for status in latest_records[:length]:
             text += f'{status.time}: {status.status_text}\n'
+        text += f'Error rate: {100 * error_rate:.2f}%.'
         bot.send_message(chat_id=update.message.chat_id, text=text)
 
     def read_command(self, bot, update, args):

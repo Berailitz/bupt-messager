@@ -1,4 +1,4 @@
-"""credentials of this app"""
+"""Credentials of this app."""
 #!/usr/env/python3
 # -*- coding: UTF-8 -*-
 

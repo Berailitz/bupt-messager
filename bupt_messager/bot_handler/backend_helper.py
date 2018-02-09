@@ -1,15 +1,21 @@
+"""Utils for backend."""
 import functools
 import logging
 import os
 import sys
+from typing import List
 import telegram
-from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from ..config import BOT_ADMIN_IDS, BOT_NOTICE_MAX_BUTTON_PER_LINE, BOT_RESTART_ARG_NO_ARG, BOT_START_VALID_ARGS
 from ..mess import get_arg, threaded
 
 def admin_only(func):
+    """Decorated function will be restricted to admins listed in `BOT_ADMIN_IDS` only.
+    """
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
+        """See `admin_only`.
+        """
         bot = get_arg(telegram.bot.Bot, args, kwargs)
         update = get_arg(telegram.update.Update, args, kwargs)
         user_id = update.effective_user.id
@@ -21,6 +27,13 @@ def admin_only(func):
     return wrapped
 
 class BackendHelper(object):
+    """Tools for `BotBackend`.
+
+    :member sql_handle: Attached :obj: SQLHandle.
+    :type sql_handle: SQLHandle.
+    :member updater: Attached :obj: bot updater.
+    :type updater: Updater.
+    """
     def __init__(self, *, sql_handle=None, updater=None):
         self.sql_handle = sql_handle
         self.updater = updater
@@ -32,8 +45,12 @@ class BackendHelper(object):
         self.updater = updater
 
     @threaded
-    def restart_app(self, args):
-        """Gracefully stop the Updater and replace the current process with a new one"""
+    def restart_app(self, args: List[str]):
+        """Gracefully kill current process and replace it with a new one.
+
+        :param args: List of restart arguments (str) received from client.
+        :type args: list.
+        """
         start_commands = ['--' + arg for arg in args if arg in BOT_START_VALID_ARGS]
         self.updater.stop()
         if BOT_RESTART_ARG_NO_ARG in args:
@@ -44,7 +61,23 @@ class BackendHelper(object):
             os.execl(sys.executable, sys.executable, *sys.argv)
 
     @staticmethod
-    def markup_keyboard(buttons, width, header_buttons=None, footer_buttons=None):
+    def markup_keyboard(buttons: List[InlineKeyboardButton],
+                        width: int,
+                        header_buttons: List[InlineKeyboardButton] = None,
+                        footer_buttons: List[InlineKeyboardButton] = None) -> InlineKeyboardMarkup:
+        """Build keybords from buttons.
+
+        :param buttons: Buttons displayed in the middle.
+        :type buttons: List[InlineKeyboardButton].
+        :param width: Amount of buttons per line.
+        :type width: int.
+        :param header_buttons: Defaults to None. Buttons on the first line.
+        :type header_buttons: List[InlineKeyboardButton], optional.
+        :param footer_buttons: Defaults to None. Buttons on the last line.
+        :type footer_buttons: List[InlineKeyboardButton], optional.
+        :return: Keyboard in :obj:`InlineKeyboardMarkup`.
+        :rtype: InlineKeyboardMarkup.
+        """
         menu = [buttons[i:i + width] for i in range(0, len(buttons), width)]
         if header_buttons:
             menu.insert(0, header_buttons)
@@ -52,7 +85,16 @@ class BackendHelper(object):
             menu.append(footer_buttons)
         return InlineKeyboardMarkup(menu)
 
-    def send_notice(self, bot, message, index):
+    def send_notice(self, bot, message: telegram.Message, index: int):
+        """Send a notice to a specific user.
+
+        :param bot: Current bot.
+        :type bot: telegram.bot.
+        :param message: Request received.
+        :type message: telegram.Message.
+        :param index: Index of the message to be sent.
+        :type index: int.
+        """
         notice_list = self.sql_handle.get_latest_notices(length=1, start=index)
         if notice_list:
             target_notice = notice_list[0]
@@ -67,7 +109,16 @@ class BackendHelper(object):
         else:
             bot.send_message(chat_id=message.chat_id, text="No such notice.")
 
-    def send_latest_notice(self, *, bot, message, length, start=0):
+    def send_latest_notice(self, *, bot, message: telegram.Message, length: int, start: int = 0):
+        """Send a list of notices.
+
+        :param message: Message received.
+        :type message: telegram.Message.
+        :param length: Amount to notices to be sent.
+        :type length: int.
+        :param start: Defaults to 0. Index of the most recent notice to be sent.
+        :type start: int, optional.
+        """
         text = ""
         buttons = []
         for index, notice in enumerate(self.sql_handle.get_latest_notices(length=length, start=start)):
@@ -88,5 +139,12 @@ class BackendHelper(object):
             bot.send_message(chat_id=message.chat_id, text='No more news.')
 
     @staticmethod
-    def prase_callback(update):
+    def prase_callback(update: Update) -> List[str]:
+        """Prase callback arguments from argument `args` received from `updater`.
+
+        :param update: Callback update.
+        :type update: telegram.Update.
+        :return: List of arguments.
+        :rtype: List[str].
+        """
         return update.callback_query.data.split('_')[1:]

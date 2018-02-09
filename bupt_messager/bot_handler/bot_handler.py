@@ -5,6 +5,13 @@ from ..sql_handle import SQLHandle
 from .bot_backend import BotBackend
 
 class BotHandler(object):
+    """Register backend logic.
+
+    :member bot_backend: Attached :obj:BotBackend.
+    :type bot_backend: BotBackend.
+    :member updater: Active updater.
+    :type updater: telegram.ext.Updater.
+    """
     def __init__(self, sql_manager=None, bot=None):
         self.updater = Updater(bot=bot) if bot else None
         self.bot_backend = BotBackend(
@@ -19,6 +26,8 @@ class BotHandler(object):
         self.updater = Updater(bot=bot)
 
     def add_handler(self):
+        """Register handlers, run once per start.
+        """
         dispatcher = self.updater.dispatcher
         start_handler = CommandHandler('start', self.bot_backend.start_command)
         dispatcher.add_handler(start_handler)
@@ -40,11 +49,15 @@ class BotHandler(object):
         dispatcher.add_handler(unknown_handler)
 
     def start(self):
+        """Start the bot server.
+        """
         self.updater.start_webhook(port=WEB_HOOK_PORT, url_path=WEB_HOOK_URL_PATH)
         self.updater.bot.set_webhook(url=WEB_HOOK_URL)
         logging.info('Bot: started.')
 
     def stop(self):
+        """:#DEBUG#: Stop the bot server, often cause endless wait.
+        """
         logging.info('Bot: stopping')
         self.updater.stop()
         logging.info('Bot: stopped.')

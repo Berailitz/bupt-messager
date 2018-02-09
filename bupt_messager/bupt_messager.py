@@ -1,3 +1,4 @@
+"""Main class."""
 import logging
 import os
 import signal
@@ -10,7 +11,13 @@ from .config import MESSAGER_PRINT_INTERVAL
 from .queued_bot import create_queued_bot
 from .sql_handle import SQLManager
 
+
 class BUPTMessager(object):
+    """Messager class, the controller.
+
+    :type *_mode: bool.
+    :type log_folder: str.
+    """
     def __init__(self, *, debug_mode=False, no_bot_mode=False, no_spider_mode=False):
         sql_manager = SQLManager()
         self.debug_mode = debug_mode
@@ -38,6 +45,8 @@ class BUPTMessager(object):
             set_logger(log_path, console_level=logging.INFO, file_level=logging.INFO)
 
     def start(self):
+        """Start messager, reading attributes `*_mode`.
+        """
         if self.no_spider_mode:
             logging.warning('BUPTMessager: no_spider_mode is ON.')
         else:
@@ -50,7 +59,14 @@ class BUPTMessager(object):
             logging.info(f'Workers: {threading.enumerate()}')
             time.sleep(MESSAGER_PRINT_INTERVAL)
 
-    def stop(self, signum=None, frame=None):
+    def stop(self, signum: int = None, frame=None):
+        """Stop messager gracefully.
+
+        :param signum: Number representing a signal, defaults to None
+        :type signum: int, optional
+        :param frame: Stack frame, defaults to None
+        :type frame: Frame, optional
+        """
         if signum:
             logging.warning(f'BUPTMessager: Stop due to signal: {signum}')
         if not self.no_bot_mode:

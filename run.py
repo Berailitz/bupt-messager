@@ -1,4 +1,4 @@
-"""start main app"""
+"""Start main app."""
 #!/usr/env/python3
 # -*- coding: UTF-8 -*-
 
@@ -7,7 +7,10 @@ import sys
 import threading
 from bupt_messager.bupt_messager import BUPTMessager
 
+
 def main():
+    """Prase arguments started with `--`.
+    """
     debug_mode = '--debug' in sys.argv
     no_bot_mode = '--no-bot' in sys.argv
     no_spider_mode = '--no-spider' in sys.argv
@@ -19,6 +22,7 @@ def main():
         bupt_messager.stop()
         logging.info(f'Messager: stooped.')
         logging.info(f'Left workers: {threading.enumerate()}')
+
 
 if __name__ == '__main__':
     main()

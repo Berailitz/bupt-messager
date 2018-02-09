@@ -1,4 +1,4 @@
-"""config of this app"""
+"""Configs of this app."""
 #!/usr/env/python3
 # -*- coding: UTF-8 -*-
 

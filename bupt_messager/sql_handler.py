@@ -148,17 +148,19 @@ class SQLHandler(object):
 
     @load_session
     @fun_logger(log_fun=logging.debug)
-    def get_latest_status(my_session: Session, start: datetime, end: datetime = datetime.now()) -> List[Status]:
+    def get_latest_status(my_session: Session, start: datetime, end: datetime = None) -> List[Status]:
         """Retrive :obj:`Status` by time.
 
         :param my_session: Current session.
         :type my_session: Session.
         :param start: Start time of the list of :obj:`Status`s.
         :type start: datetime.
-        :param end: Defaults to `datetime.now()`. Start time of the list of :obj:`Status`s.
+        :param end: Defaults to None. Start time of the list of :obj:`Status`s.
         :type end: datetime.
         :rtype: List[Status].
         """
+        if end is None:
+            end = datetime.now()
         return my_session.query(Status).filter(Status.time.between(start, end)).all()
 
     @load_session

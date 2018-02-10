@@ -79,12 +79,16 @@ class BotBackend(object):
             logging.info(f'BotBackend.status_command: {identifier}')
             return
         latest_records = self.sql_handler.get_latest_status(datetime.now() - timedelta(hours=BOT_STATUS_STATISTIC_HOUR))
-        error_records = [record for record in latest_records if record.status != STATUS_SYNCED] if latest_records else []
-        error_rate = len(error_records) / len(latest_records) if latest_records else 0
-        text = ""
-        for status in latest_records[-length:]:
-            text += f'{status.time}: {status.status_text}\n'
-        text += f'Error rate: {100 * error_rate:.2f}%.'
+        if latest_records:
+            error_records = [record for record in latest_records if record.status != STATUS_SYNCED]
+            error_rate = len(error_records) / len(latest_records)
+            text = ""
+            for status in latest_records[-length:]:
+                text += f'{status.time}: {status.status_text}\n'
+            text += f'Error rate: {100 * error_rate:.2f}%.'
+        else:
+            logging.warning('BotBackend: No status selected.')
+            text = "No status log."
         bot.send_message(chat_id=update.message.chat_id, text=text)
 
     def read_command(self, bot, update, args):

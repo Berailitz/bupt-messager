@@ -1,5 +1,6 @@
 """Utils."""
 import datetime
+import functools
 import itertools
 import logging
 import logging.handlers
@@ -9,6 +10,25 @@ from typing import Callable
 
 
 get_current_time = lambda: time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+
+
+def fun_logger(*, prefix='Fun_logger: ', log_fun=logging.info):
+    """Log function calls.
+
+    :param log_fun: Callback function to save log, defaults to logging.
+    :type log_fun: Callable, optional.
+    :return: Text as the prefix of logs.
+    :rtype: str.
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kw):
+            log_fun(f'{prefix}{func.__name__} called with `{args}`, `{kw}`.')
+            result = func(*args, **kw)
+            log_fun(f'{prefix}{func.__name__} returns `{result}`,')
+            return result
+        return wrapper
+    return decorator
 
 
 def set_logger(log_file_path: str, console_level=logging.INFO, file_level=logging.INFO):

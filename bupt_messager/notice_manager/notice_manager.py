@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL, NOTICE_UPDATE_ERROR_SLEEP_TIME
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH
 from ..config import STATUS_ERROR_DOWNLOAD, STATUS_ERROR_LOGIN_AUTH, STATUS_ERROR_LOGIN_WEBVPN, STATUS_SYNCED
+from ..mess import fun_logger
 from ..sql_handler import SQLHandler
 from .bot_helper import BotHelper
 from .http_client import HTTPClient
@@ -130,6 +131,7 @@ class NoticeManager(threading.Thread):
             attachment['name'] = attachment['name'][:ATTACHMENT_NAME_LENGTH]
 
     @change_status(error_status=STATUS_ERROR_DOWNLOAD)
+    @fun_logger(log_fun=logging.debug)
     def _doanload_notice(self) -> List[dict]:
         """Download new notices.
 

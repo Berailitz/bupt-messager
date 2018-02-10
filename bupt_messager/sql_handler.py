@@ -8,6 +8,7 @@ from sqlalchemy import create_engine, exists
 from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 from sqlalchemy.orm.session import Session
 from .config import SQLALCHEMY_DATABASE_URI
+from .mess import fun_logger
 from .models import Attachment, Base, Chat, Notification, Status
 
 
@@ -85,6 +86,7 @@ class SQLHandler(object):
         return not my_session.query(exists().where(Notification.id==notice_id)).scalar()
 
     @load_session
+    @fun_logger(log_fun=logging.debug)
     def insert_notice(my_session: Session, notice_dict: dict):
         """Insert new notice to SQL.
 
@@ -102,6 +104,7 @@ class SQLHandler(object):
         return new_notice
 
     @load_session
+    @fun_logger(log_fun=logging.debug)
     def get_latest_notices(my_session: Session, length: int, start: int = 0) -> List:
         """Retrive noticess with most recent `date`s.
 
@@ -144,6 +147,7 @@ class SQLHandler(object):
         return None
 
     @load_session
+    @fun_logger(log_fun=logging.debug)
     def get_latest_status(my_session: Session, start: datetime, end: datetime = datetime.now()) -> List[Status]:
         """Retrive :obj:`Status` by time.
 

@@ -7,7 +7,7 @@ from typing import List
 import telegram
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from ..config import BOT_ADMIN_IDS, BOT_NOTICE_MAX_BUTTON_PER_LINE, BOT_RESTART_ARG_NO_ARG, BOT_START_VALID_ARGS
-from ..mess import get_arg, threaded
+from ..mess import fun_logger, get_arg, threaded
 
 
 def admin_only(func):
@@ -141,6 +141,7 @@ class BackendHelper(object):
             bot.send_message(chat_id=message.chat_id, text='No more news.')
 
     @staticmethod
+    @fun_logger(log_fun=logging.debug)
     def prase_callback(update: Update) -> List[str]:
         """Prase callback arguments from argument `args` received from `updater`.
 

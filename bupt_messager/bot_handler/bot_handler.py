@@ -1,6 +1,6 @@
 import logging
 from telegram.ext import Filters, Updater, CallbackQueryHandler, CommandHandler, MessageHandler
-from ..config import WEB_HOOK_PORT, WEB_HOOK_URL, WEB_HOOK_URL_PATH
+from ..config import BOT_CERT_PATH, BOT_KEY_PATH, BOT_LISTEN_ADDRESS, BOT_WEB_HOOK_PORT, BOT_WEB_HOOK_URL, BOT_WEB_HOOK_URL_PATH
 from ..sql_handler import SQLHandler
 from .bot_backend import BotBackend
 
@@ -52,8 +52,13 @@ class BotHandler(object):
     def start(self):
         """Start the bot server.
         """
-        self.updater.start_webhook(port=WEB_HOOK_PORT, url_path=WEB_HOOK_URL_PATH)
-        self.updater.bot.set_webhook(url=WEB_HOOK_URL)
+        self.updater.start_webhook(
+            listen=BOT_LISTEN_ADDRESS,
+            port=BOT_WEB_HOOK_PORT,
+            url_path=BOT_WEB_HOOK_URL_PATH,
+            cert=BOT_CERT_PATH,
+            key=BOT_KEY_PATH)
+        self.updater.bot.set_webhook(url=BOT_WEB_HOOK_URL)
         logging.info('Bot: started.')
 
     def stop(self):

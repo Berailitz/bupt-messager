@@ -56,11 +56,11 @@ class WebVPNHelper(LoginHelper):
 
     @staticmethod
     def read_webvpn_captcha(im_raw):
-        """Read text from capcha image.
+        """Read text from captcha image.
 
-        :param im_raw: Capcha image.
+        :param im_raw: captcha image.
         :type im_raw: PIL.Image.
-        :return: Text in capcha.
+        :return: Text in captcha.
         :rtype: str.
         """
         im_l = im_raw.convert('L')
@@ -69,9 +69,9 @@ class WebVPNHelper(LoginHelper):
         return pytesseract.image_to_string(im_b, config='-c tessedit_char_whitelist=0123456789 -psm 7')
 
     def solve_webvpn_captcha(self):
-        """Download capcha image and read it.
+        """Download captcha image and read it.
 
-        :return: Capcha text.
+        :return: captcha text.
         :rtype: str.
         """
         webvpn_captcha_url = 'http://webvpn.bupt.edu.cn/wengine-auth/captcha/'

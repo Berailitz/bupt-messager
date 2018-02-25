@@ -75,7 +75,7 @@ class LoginHelper(object):
         :rtype: requests.Response|None.
         """
         try:
-            return self.try_login(error_notice=error_notice)
+            return self.do_login(error_notice=error_notice)
         except KeyboardInterrupt as identifier:
             logging.warning('LoginHelper: Catch KeyboardInterrupt when logging in.')
             raise identifier

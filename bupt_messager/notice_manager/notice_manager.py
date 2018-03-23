@@ -81,7 +81,8 @@ class NoticeManager(threading.Thread):
             try:
                 self._login_webvpn()
                 self._login_auth()
-                self.update()
+                notice_dict_list = self._doanload_notice()
+                self.update(notice_dict_list)
                 logging.info(f'NoticeManager: Sleep for {NOTICE_CHECK_INTERVAL} seconds.')
             except KeyboardInterrupt as identifier:
                 logging.warning('NoticeManager: Catch KeyboardInterrupt when logging in.')
@@ -102,15 +103,14 @@ class NoticeManager(threading.Thread):
         logging.info('NoticeManager: Set stop signal.')
 
     @change_status(ok_status=STATUS_SYNCED)
-    def update(self) -> int:
+    def update(self, notice_dict_list) -> int:
         """Fetch new notice.
 
         :return: Amount of new notice.
         :rtype: int.
         """
         update_counter = 0
-        notice_list = self._doanload_notice()
-        for notice_dict in notice_list:
+        for notice_dict in notice_dict_list:
             self._shape_notice(notice_dict)
             self.sql_handler.insert_notice(notice_dict)
             self.bot_helper.broadcast_notice(notice_dict)

@@ -7,6 +7,7 @@ import logging.handlers
 import threading
 import time
 from typing import Callable
+from .config import LOG_MAX_TEXT_LENGTH
 
 
 get_current_time = lambda: time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
@@ -23,9 +24,9 @@ def fun_logger(*, prefix='Fun_logger: ', log_fun=logging.info):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kw):
-            log_fun(f'{prefix}{func.__name__} called with `{args}`, `{kw}`.')
+            log_fun(f'{prefix}{func.__name__} called with `{str(args)[:LOG_MAX_TEXT_LENGTH]}`, `{str(kw)[:LOG_MAX_TEXT_LENGTH]}`.')
             result = func(*args, **kw)
-            log_fun(f'{prefix}{func.__name__} returns `{result}`,')
+            log_fun(f'{prefix}{func.__name__} returns `{str(result)[:LOG_MAX_TEXT_LENGTH]}`,')
             return result
         return wrapper
     return decorator

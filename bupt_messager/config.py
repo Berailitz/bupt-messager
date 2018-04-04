@@ -8,6 +8,7 @@ except ImportError as credentials_import_error:
     print(credentials_import_error.args)
     raise ImportError("Failed to import credentials. Please make sure `credentials.py` exists.")
 
+LOG_MAX_TEXT_LENGTH = 2000
 HTTP_CLIENT_MAX_RETRIES = 4
 HTTP_CLIENT_TIME_OUT = 10
 HTTP_CLIENT_REFERER = 'http://my.bupt.edu.cn/index.portal'

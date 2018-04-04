@@ -1,20 +1,20 @@
 """Notification spider."""
+import datetime
 import functools
 import logging
+import json
 import threading
 import time
 from typing import List
 from urllib.parse import urlsplit, parse_qs
 from bs4 import BeautifulSoup
 from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL, NOTICE_UPDATE_ERROR_SLEEP_TIME
-from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH
+from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH, NOTICE_AUTHOR_LENGTH
 from ..config import STATUS_ERROR_DOWNLOAD, STATUS_ERROR_LOGIN_AUTH, STATUS_ERROR_LOGIN_WEBVPN, STATUS_SYNCED
 from ..mess import fun_logger
 from ..sql_handler import SQLHandler
 from .bot_helper import BotHelper
 from .http_client import HTTPClient
-from .login_helper.auth_helper import AuthHelper
-from .login_helper.web_vpn_helper import WebVPNHelper
 
 
 def change_status(*, error_status: int = None, ok_status: int = None):
@@ -53,22 +53,8 @@ class NoticeManager(threading.Thread):
         super().__init__()
         self.http_client = http_client or HTTPClient()
         self.sql_handler = sql_handler
-        self.webvpn_helper = WebVPNHelper(self.http_client)
-        self.auth_helper = AuthHelper(self.http_client)
         self.bot_helper = BotHelper(self.sql_handler, bot)
         self._stop_event = threading.Event()
-
-    @change_status(error_status=STATUS_ERROR_LOGIN_WEBVPN)
-    def _login_webvpn(self):
-        """Log in to web VPN.
-        """
-        self.webvpn_helper.do_login(error_notice='Web VPN (webvpn.bupt.edu.cn)')
-
-    @change_status(error_status=STATUS_ERROR_LOGIN_AUTH)
-    def _login_auth(self):
-        """Log in to `my.bupt.edu.cn`.
-        """
-        self.auth_helper.do_login(error_notice='Auth (my.bupt.edu.cn)')
 
     def run(self):
         """Main loop.
@@ -79,8 +65,6 @@ class NoticeManager(threading.Thread):
             logging.info('NoticeManager: Updating.')
             self.http_client.refresh_session()
             try:
-                self._login_webvpn()
-                self._login_auth()
                 notice_dict_list = self._doanload_notice()
                 self.update(notice_dict_list)
                 logging.info(f'NoticeManager: Sleep for {NOTICE_CHECK_INTERVAL} seconds.')
@@ -111,24 +95,66 @@ class NoticeManager(threading.Thread):
         """
         update_counter = 0
         for notice_dict in notice_dict_list:
-            self._shape_notice(notice_dict)
             self.sql_handler.insert_notice(notice_dict)
             self.bot_helper.broadcast_notice(notice_dict)
             update_counter += 1
         logging.info(f'{update_counter} notifications inserted.')
         return update_counter
 
-    @staticmethod
-    def _shape_notice(notice_dict: dict):
-        """Format a notice. Generate summary, cut title and link attachments.
+    def get_attachments(self, notice_id: str):
+        """Fetch attachment info.
+
+        :return: List of attachment dicts.
+        :rtype: list.
+        """
+        detail_soup = BeautifulSoup(
+            self.http_client.get(
+                f'https://webapp.bupt.edu.cn/extensions/wap/news/detail.html?id={notice_id}&classify_id=tzgg'
+            ).text, 'lxml')
+        return [{
+            'name': attachement_label.text[:ATTACHMENT_NAME_LENGTH],
+            'notice_id': notice_id,
+            'url': attachement_label['href']
+        } for attachement_label in detail_soup.select(
+            '#container > section > ul > div > p > a')]
+
+    def prase_notice(self, notice_raw: dict):
+        """Form a notice dict, without attachment. Generate summary, cut title and link attachments.
 
         :param notice_dict: New notification.
         :type notice_dict: dict.
         """
-        notice_dict['summary'] = notice_dict['text'][:NOTICE_SUMMARY_LENGTH]
-        notice_dict['title'] = notice_dict['title'][:NOTICE_TITLE_LENGTH]
-        for attachment in notice_dict['attachments']:
-            attachment['name'] = attachment['name'][:ATTACHMENT_NAME_LENGTH]
+        notice_dict = dict()
+        notice_dict['author'] = notice_raw['author'][:NOTICE_AUTHOR_LENGTH]
+        notice_dict['id'] = notice_raw['id']
+        notice_dict['html'] = notice_raw['text']
+        notice_dict['summary'] = notice_raw['desc'][:NOTICE_SUMMARY_LENGTH]
+        notice_dict['time'] = datetime.datetime.fromtimestamp(int(notice_raw['created']))
+        notice_dict['title'] = notice_raw['title'][:NOTICE_TITLE_LENGTH]
+        notice_dict['url'] = f'https://webapp.bupt.edu.cn/extensions/wap/news/detail.html?id={notice_raw["id"]}&classify_id=tzgg'
+        return notice_dict
+
+    def download_notice_list_page(self, page_index=1):
+        """Download a list of notice dicts.
+
+        :return: List of notice dicts or None.
+        :rtype: list.
+        """
+        try:
+            logging.info(f'NoticeManager: Download notice list at page `{page_index}`.')
+            notice_response = self.http_client.get(
+                f'https://webapp.bupt.edu.cn/extensions/wap/news/get-list.html?p={page_index}&type=tzgg'
+            )
+            notice_data = json.loads(notice_response.text)
+            if notice_data['m'] == '操作成功':
+                return [
+                    notice for notice_list in notice_data['data'].values()
+                    for notice in notice_list
+                ]
+        except Exception as identifier:
+            logging.exception(identifier)
+            logging.warning(f'NoticeManager: Failed to download notice list.')
+            return None
 
     @change_status(error_status=STATUS_ERROR_DOWNLOAD)
     @fun_logger(log_fun=logging.debug)
@@ -137,41 +163,20 @@ class NoticeManager(threading.Thread):
 
         :rtype: List[dict].
         """
-        NOTICE_LIST_URL = 'http://my.bupt.edu.cn/detach.portal?.pen=pe1144&.pmn=view%27'
-        NOTICE_BASEURL = 'http://my.bupt.edu.cn/'
-        LINK_DIV_SELECTOR = '#fpe1144 > ul > li'
+        notice_raw_list = self.download_notice_list_page()
         notice_list = list()
-        notice_index_soup = BeautifulSoup(self.http_client.get(NOTICE_LIST_URL).text, 'lxml')
-        logging.info(f'Prasing `{notice_index_soup.title.text}`')
-        notice_item_list = notice_index_soup.select(LINK_DIV_SELECTOR)
-        logging.info(f'{len(notice_item_list)} links detected.')
-        for notice_item in notice_item_list:
-            notice_link = notice_item.select('a')[0]
-            notice_url = NOTICE_BASEURL + notice_link['href']
-            notice_id = parse_qs(urlsplit(notice_url).query)['bulletinId'][0]
-            notice_title = notice_link.text
-            if self.sql_handler.is_new_notice(notice_id):
-                notice_info = dict()
-                notice_info['url'] = notice_url
-                notice_info['id'] = notice_id
-                notice_info['title'] = notice_title
-                notice_info['date'] = notice_item.select('span.time')[0].text
-                logging.info(f"Waiting for `{notice_info['title']}`.")
+        logging.info(f'{len(notice_raw_list)} notices detected.')
+        for notice_raw in notice_raw_list:
+            notice_dict = self.prase_notice(notice_raw)
+            if self.sql_handler.is_new_notice(notice_dict['id']):
+                logging.info(f"NoticeManager: Waiting for attachment of `{notice_dict['title']}`.")
                 time.sleep(NOTICE_DOWNLOAD_INTERVAL)
-                notice_page_soup = BeautifulSoup(self.http_client.get(notice_info['url']).text, 'lxml')
-                notice_info['text'] = notice_page_soup.select('.singleinfo')[0].text
-                notice_attachment = notice_page_soup.select('.battch')
-                if notice_attachment:
-                    notice_info['attachments'] = [
-                        {'name': item.text, 'url': NOTICE_BASEURL + item['href']} for item in notice_attachment[0].select('a')
-                    ]
-                else:
-                    notice_info['attachments'] = []
-                notice_list.append(notice_info)
-                logging.info(f'NoticeManager: New notice `{notice_title}`.')
+                notice_dict['attachments'] = self.get_attachments(notice_dict['id'])
+                notice_list.append(notice_dict)
+                logging.info(f'NoticeManager: New notice fetched `{notice_dict["title"]}`.')
             else:
-                logging.info(f'NoticeManager: Duplicate notice `{notice_title}`.')
-        logging.info('NoticeManager: Praser finished.')
+                logging.info(f'NoticeManager: Duplicate notice `{notice_dict["title"]}`.')
+        logging.info('NoticeManager: Download finished.')
         return notice_list
 
 def create_notice_manager(sql_manager, bot):

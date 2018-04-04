@@ -29,7 +29,7 @@ class BotHelper(object):
         for chat_id in chat_id_list:
             self.bot.send_message(
                 chat_id=chat_id,
-                text=f"*{notice_dict['title']}*\n{notice_dict['summary']}...({notice_dict['date']})",
+                text=f"*{notice_dict['title']}*\n{notice_dict['summary']}...({notice_dict['time'].strftime('%Y/%m/%d')})",
                 reply_markup=menu_markup,
                 parse_mode=ParseMode.MARKDOWN)
         logging.info(f'BotHelper: Broadcast to {len(chat_id_list)} subscribers.')

@@ -26,11 +26,12 @@ class Notification(Base):
     """
     __tablename__ = 'notification'
     id = Column(String(36), primary_key=True)
-    text = Column(Text)
+    author = Column(String(20))
+    html = Column(Text)
     title = Column(String(80))
     url = Column(Text)
     summary = Column(Text)
-    date = Column(Date)
+    time = Column(DateTime)
 
     def __repr__(self):
         return f"<Notification(id='{self.id}', title='{self.title}')>"

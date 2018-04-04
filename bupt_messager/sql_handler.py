@@ -117,7 +117,7 @@ class SQLHandler(object):
         :return: List of :obj:`Notice`s.
         :rtype: list.
         """
-        return my_session.query(Notification).order_by(Notification.date.desc())[start:][:length]
+        return my_session.query(Notification).order_by(Notification.time.desc())[start:][:length]
 
     @load_session
     def get_chat_ids(my_session: Session) -> List[int]:

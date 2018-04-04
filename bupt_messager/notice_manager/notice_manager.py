@@ -127,10 +127,10 @@ class NoticeManager(threading.Thread):
         notice_dict = dict()
         notice_dict['author'] = notice_raw['author'][:NOTICE_AUTHOR_LENGTH]
         notice_dict['id'] = notice_raw['id']
-        notice_dict['html'] = notice_raw['text']
-        notice_dict['summary'] = notice_raw['desc'][:NOTICE_SUMMARY_LENGTH]
+        notice_dict['html'] = notice_raw['text'].replace('&nbsp;', '')
+        notice_dict['summary'] = notice_raw['desc'].replace('&nbsp;', '')[:NOTICE_SUMMARY_LENGTH]
         notice_dict['time'] = datetime.datetime.fromtimestamp(int(notice_raw['created']))
-        notice_dict['title'] = notice_raw['title'][:NOTICE_TITLE_LENGTH]
+        notice_dict['title'] = notice_raw['title'].replace('&nbsp;', '')[:NOTICE_TITLE_LENGTH]
         notice_dict['url'] = f'https://webapp.bupt.edu.cn/extensions/wap/news/detail.html?id={notice_raw["id"]}&classify_id=tzgg'
         return notice_dict
 

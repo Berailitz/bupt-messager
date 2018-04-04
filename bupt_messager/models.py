@@ -1,4 +1,5 @@
 """Models representing SQL tables."""
+import datetime
 from sqlalchemy import Column, Date, DateTime, Integer, String, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -26,12 +27,16 @@ class Notification(Base):
     """
     __tablename__ = 'notification'
     id = Column(String(36), primary_key=True)
-    author = Column(String(20))
+    author = Column(String(40))
     html = Column(Text)
     title = Column(String(80))
     url = Column(Text)
     summary = Column(Text)
     time = Column(DateTime)
+
+    @property
+    def date(self):
+        return self.time.strftime('%Y/%m/%d')
 
     def __repr__(self):
         return f"<Notification(id='{self.id}', title='{self.title}')>"

@@ -104,7 +104,7 @@ class BackendHelper(object):
             menu_markup = InlineKeyboardMarkup(keyboard)
             bot.send_message(
                 chat_id=message.chat_id,
-                text=f"*{target_notice.title}*\n{target_notice.summary}...({target_notice.date})",
+                text=f"*{target_notice.title}*\n{target_notice.summary}...({target_notice.datetime})",
                 reply_markup=menu_markup,
                 parse_mode=ParseMode.MARKDOWN
             )
@@ -124,7 +124,7 @@ class BackendHelper(object):
         text = ""
         buttons = []
         for index, notice in enumerate(self.sql_handler.get_latest_notices(length=length, start=start)):
-            text += f'{index + 1}.[{notice.title}]({notice.url})({notice.date})\n'
+            text += f'{index + 1}.[{notice.title}]({notice.url})({notice.datetime})\n'
             buttons.append(InlineKeyboardButton(text=f'{index + 1}', callback_data=f'read_{start + index}'))
         keyboard = self.markup_keyboard(
             buttons=buttons,

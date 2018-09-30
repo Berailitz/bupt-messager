@@ -35,8 +35,8 @@ class Notification(Base):
     time = Column(DateTime)
 
     @property
-    def date(self):
-        return self.time.strftime('%Y/%m/%d')
+    def datetime(self):
+        return self.time.strftime('%Y/%m/%d %H:%M:%S')
 
     def __repr__(self):
         return f"<Notification(id='{self.id}', title='{self.title}')>"

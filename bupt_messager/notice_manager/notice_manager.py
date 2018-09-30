@@ -5,12 +5,12 @@ import logging
 import json
 import threading
 import time
+from queue import Queue
 from typing import List
-from urllib.parse import urlsplit, parse_qs
 from bs4 import BeautifulSoup
-from ..config import ATTACHMENT_NAME_LENGTH, NOTICE_CHECK_INTERVAL, NOTICE_UPDATE_ERROR_SLEEP_TIME
+from ..config import ATTACHMENT_NAME_LENGTH, BROADCAST_CYCLE, NOTICE_CHECK_INTERVAL, NOTICE_UPDATE_ERROR_SLEEP_TIME
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH, NOTICE_AUTHOR_LENGTH
-from ..config import STATUS_ERROR_DOWNLOAD, STATUS_ERROR_LOGIN_AUTH, STATUS_ERROR_LOGIN_WEBVPN, STATUS_SYNCED
+from ..config import STATUS_ERROR_DOWNLOAD, STATUS_SYNCED
 from ..mess import fun_logger
 from ..sql_handler import SQLHandler
 from .bot_helper import BotHelper
@@ -55,18 +55,26 @@ class NoticeManager(threading.Thread):
         self.sql_handler = sql_handler
         self.bot_helper = BotHelper(self.sql_handler, bot)
         self._stop_event = threading.Event()
+        self.broadcast_queue = Queue()
 
     def run(self):
         """Main loop.
         """
         is_first_run = True
+        update_counter = 0
         while is_first_run or not self._stop_event.wait(NOTICE_CHECK_INTERVAL):
+            update_counter += 1
             is_first_run = False
             logging.info('NoticeManager: Updating.')
             self.http_client.refresh_session()
             try:
                 notice_dict_list = self._doanload_notice()
                 self.update(notice_dict_list)
+                if update_counter == BROADCAST_CYCLE:
+                    update_counter = 0
+                    while not self.broadcast_queue.empty():
+                        new_notice_dict = self.broadcast_queue.get()
+                        self.bot_helper.broadcast_notice(new_notice_dict)
                 logging.info(f'NoticeManager: Sleep for {NOTICE_CHECK_INTERVAL} seconds.')
             except KeyboardInterrupt as identifier:
                 logging.warning('NoticeManager: Catch KeyboardInterrupt when logging in.')
@@ -93,13 +101,13 @@ class NoticeManager(threading.Thread):
         :return: Amount of new notice.
         :rtype: int.
         """
-        update_counter = 0
+        notice_counter = 0
         for notice_dict in notice_dict_list:
             self.sql_handler.insert_notice(notice_dict)
-            self.bot_helper.broadcast_notice(notice_dict)
-            update_counter += 1
-        logging.info(f'{update_counter} notifications inserted.')
-        return update_counter
+            self.broadcast_queue.put(notice_dict)
+            notice_counter += 1
+        logging.info(f'{notice_counter} notifications inserted.')
+        return notice_counter
 
     def get_attachments(self, notice_id: str):
         """Fetch attachment info.

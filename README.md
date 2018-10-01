@@ -37,6 +37,7 @@ A Messager that forwards notifications, containing:
  - `--no-spider`: No notification will be fetched
 
 ### Bot commands
+ - `/about`: Introduce the bot.
  - `/latest {list_length}`: Get a list of latest notifications, 5 items by default.
  - `/read {index}`: Read a specific notice.
  - `/restart {start_commands}`: Restart the application.

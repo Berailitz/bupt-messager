@@ -37,3 +37,5 @@ STATUS_SYNCED = 0
 STATUS_ERROR_LOGIN_WEBVPN = 1
 STATUS_ERROR_LOGIN_AUTH = 2
 STATUS_ERROR_DOWNLOAD = 3
+MESSAGE_ABOUT_ME = "I'm a bot that forwards notifications." + \
+    " 🍴 me at [https://github.com/Berailitz/bupt-messager](https://github.com/Berailitz/bupt-messager)."

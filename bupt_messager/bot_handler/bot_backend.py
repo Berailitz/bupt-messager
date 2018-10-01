@@ -1,7 +1,9 @@
 """Describe backend logic."""
 import logging
 from datetime import datetime, timedelta
-from ..config import BOT_NOTICE_LIST_LENGTH, BOT_STATUS_LIST_LENGTH, BOT_STATUS_STATISTIC_HOUR, STATUS_SYNCED
+from telegram import ParseMode
+from ..config import BOT_NOTICE_LIST_LENGTH, BOT_STATUS_LIST_LENGTH, BOT_STATUS_STATISTIC_HOUR
+from ..config import MESSAGE_ABOUT_ME, STATUS_SYNCED
 from ..mess import try_int
 from .backend_helper import admin_only, BackendHelper
 
@@ -26,6 +28,12 @@ class BotBackend(object):
     def init_updater(self, updater):
         self.updater = updater
         self.backend_helper.init_updater(updater)
+
+    def about_command(self, bot, update):
+        """Introduce myself, for `/about`.
+        """
+        bot.send_message(chat_id=update.message.chat_id, text=MESSAGE_ABOUT_ME, parse_mode=ParseMode.MARKDOWN)
+        logging.info(f'BotBackend.about_command: From chat `{update.message.chat_id}`.')
 
     def start_command(self, bot, update):
         """Say Welcome when receiving command `/start`.

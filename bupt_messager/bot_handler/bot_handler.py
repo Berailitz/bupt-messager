@@ -30,6 +30,8 @@ class BotHandler(object):
         """Register handlers, run once per start.
         """
         dispatcher = self.updater.dispatcher
+        about_handler = CommandHandler('about', self.bot_backend.about_command)
+        dispatcher.add_handler(about_handler)
         start_handler = CommandHandler('start', self.bot_backend.start_command)
         dispatcher.add_handler(start_handler)
         latest_handler = CommandHandler('latest', self.bot_backend.latest_command, pass_args=True)

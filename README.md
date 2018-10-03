@@ -2,7 +2,7 @@
 
 A Messager that forwards notifications, containing:
  - `NoticeManager`: A spider that crawles `my.bupt.edu.cn`.
- - `BotHandler`: A Telegram [bot](https://telegram.me/bupt_messager) that provides a few commands.
+ - `BotHandler`: A Telegram [bot](https://telegram.me/bupt_messager_bot) that provides a few commands.
 
 ### Features
  - Web VPN support

@@ -26,10 +26,10 @@ class BotHelper(object):
         keyboard = [[InlineKeyboardButton('READ', notice_dict['url'])]]
         menu_markup = InlineKeyboardMarkup(keyboard)
         chat_id_list = self.sql_handler.get_chat_ids()
+        logging.info(f'BotHelper: Broadcast to {len(chat_id_list)} subscribers.')
         for chat_id in chat_id_list:
             self.bot.send_message(
                 chat_id=chat_id,
                 text=f"*{notice_dict['title']}*\n{notice_dict['summary']}...({notice_dict['time'].strftime('%Y/%m/%d %H:%M:%S')})",
                 reply_markup=menu_markup,
                 parse_mode=ParseMode.MARKDOWN)
-        logging.info(f'BotHelper: Broadcast to {len(chat_id_list)} subscribers.')

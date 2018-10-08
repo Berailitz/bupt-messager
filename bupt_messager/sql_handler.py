@@ -147,6 +147,19 @@ class SQLHandler(object):
         return None
 
     @load_session
+    def remove_chat(my_session: Session, old_id: int):
+        """Remove chat id.
+
+        :param my_session: Current session.
+        :type my_session: Session.
+        :param old_id: Chat id.
+        :type old_id: int.
+        """
+        old_chat = my_session.query(Chat).filter(Chat.id == old_id).one()
+        my_session.delete(old_chat)
+        my_session.commit()
+
+    @load_session
     @fun_logger(log_fun=logging.debug)
     def get_latest_status(my_session: Session, start: datetime, end: datetime = None) -> List[Status]:
         """Retrive :obj:`Status` by time.

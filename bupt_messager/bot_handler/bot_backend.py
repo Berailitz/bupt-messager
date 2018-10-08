@@ -2,6 +2,7 @@
 import logging
 from datetime import datetime, timedelta
 from telegram import ParseMode
+from telegram.error import TelegramError, Unauthorized, BadRequest, TimedOut, ChatMigrated, NetworkError
 from ..config import BOT_NOTICE_LIST_LENGTH, BOT_STATUS_LIST_LENGTH, BOT_STATUS_STATISTIC_HOUR
 from ..config import MESSAGE_ABOUT_ME, STATUS_SYNCED
 from ..mess import try_int
@@ -112,6 +113,32 @@ class BotBackend(object):
         index = try_int(args[0]) if args else 0
         self.backend_helper.send_notice(bot, update.callback_query.message, index)
         update.callback_query.answer()
+
+    def error_callback(self, bot, update, error):
+        logging.exception(error)
+        chat_id = update.message.chat_id
+        try:
+            raise error
+        except Unauthorized:
+            # remove update.message.chat_id from conversation list
+            self.sql_handler.remove_chat(chat_id)
+            logging.warning(f"Remove Chat(id='{chat_id}')")
+        except BadRequest:
+            # handle malformed requests - read more below!
+            logging.error(f"Bad request detected. (chat_id=`{chat_id}`)")
+        except TimedOut:
+            # handle slow connection problems
+            logging.error(f"Timeout detected. (chat_id=`{chat_id}`)")
+        except NetworkError:
+            # handle other connection problems
+            logging.error(f"Network error detected. (chat_id=`{chat_id}`)")
+        except ChatMigrated:
+            # the chat_id of a group has changed, use error.new_chat_id instead
+            self.sql_handler.remove_chat(chat_id)
+            self.sql_handler.insert_chat(error.new_chat_id)
+            logging.warning(f"Chat migrated detected, from `{chat_id}` to `{error.new_chat_id}`.")
+        except TelegramError:
+            logging.error(f"Unknown Telegram error. (chat_id=`{chat_id}`)")
 
     @staticmethod
     def unknown_command(bot, update):

@@ -50,6 +50,7 @@ class BotHandler(object):
         dispatcher.add_handler(restart_handler)
         unknown_handler = MessageHandler(Filters.command, self.bot_backend.unknown_command)
         dispatcher.add_handler(unknown_handler)
+        dispatcher.add_error_handler(self.bot_backend.error_callback)
 
     def start(self):
         """Start the bot server.

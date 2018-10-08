@@ -1,5 +1,6 @@
 """Telegram bot with message queue."""
 import logging
+from typing import Callable
 import telegram.bot
 from telegram.ext import messagequeue
 from .config import BOT_ALL_BURST_LIMIT, BOT_GROUP_BURST_LIMIT, BOT_TOKEN, PROXY_URL
@@ -12,7 +13,7 @@ class QueuedBot(telegram.bot.Bot):
     :member _msg_queue: Queue for messages.
     :type _msg_queue: MessageQueue.
     """
-    def __init__(self, msg_queue, *args, is_queued_def=True, **kwargs):
+    def __init__(self, msg_queue, *args, is_queued_def=True, error_handle: Callable = None, **kwargs):
         """Initialize bot and attach `msg_queue` to bot.
 
         :param msg_queue: Queue for messages.
@@ -27,6 +28,10 @@ class QueuedBot(telegram.bot.Bot):
         super().__init__(*args, **kwargs)
         self._is_messages_queued_default = is_queued_def
         self._msg_queue = msg_queue
+        self.error_handle = error_handle
+
+    def set_error_handle(self, error_handle: Callable):
+        self.error_handle = error_handle
 
     def __del__(self):
         try:
@@ -43,7 +48,17 @@ class QueuedBot(telegram.bot.Bot):
         """Send message by pushing messages to message queue,
         and accept new `queued` and `isgroup` keyword arguments.
         """
-        return super().send_message(*args, **kwargs)
+        try:
+            return super().send_message(*args, **kwargs)
+        except Exception as identifier:
+            if self.error_handle is not None:
+                if 'chat_id' in kwargs.keys():
+                    chat_id = kwargs['chat_id']
+                else:
+                    chat_id = args[0]
+                self.error_handle(identifier, chat_id=chat_id)
+            else:
+                raise identifier
 
 
 def create_queued_bot():

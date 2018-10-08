@@ -114,15 +114,16 @@ class BotBackend(object):
         self.backend_helper.send_notice(bot, update.callback_query.message, index)
         update.callback_query.answer()
 
-    def error_callback(self, bot, update, error):
-        logging.exception(error)
-        chat_id = update.message.chat_id
+    def error_collector(self, error: Exception, *, chat_id: int = None) -> None:
         try:
             raise error
         except Unauthorized:
             # remove update.message.chat_id from conversation list
-            self.sql_handler.remove_chat(chat_id)
-            logging.warning(f"Remove Chat(id='{chat_id}')")
+            if chat_id is None:
+                raise error
+            else:
+                logging.warning(f"Remove Chat(id='{chat_id}')")
+                self.sql_handler.remove_chat(chat_id)
         except BadRequest:
             # handle malformed requests - read more below!
             logging.error(f"Bad request detected. (chat_id=`{chat_id}`)")
@@ -134,11 +135,18 @@ class BotBackend(object):
             logging.error(f"Network error detected. (chat_id=`{chat_id}`)")
         except ChatMigrated:
             # the chat_id of a group has changed, use error.new_chat_id instead
+            logging.warning(f"Chat migrated detected, from `{chat_id}` to `{error.new_chat_id}`.")
             self.sql_handler.remove_chat(chat_id)
             self.sql_handler.insert_chat(error.new_chat_id)
-            logging.warning(f"Chat migrated detected, from `{chat_id}` to `{error.new_chat_id}`.")
         except TelegramError:
             logging.error(f"Unknown Telegram error. (chat_id=`{chat_id}`)")
+            logging.exception(error)
+        except Exception as identifier:
+            raise identifier
+
+    def error_callback(self, bot, update, error: Exception):
+        chat_id = update.message.chat_id
+        self.error_collector(error, chat_id=chat_id)
 
     @staticmethod
     def unknown_command(bot, update):

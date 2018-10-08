@@ -155,9 +155,12 @@ class SQLHandler(object):
         :param old_id: Chat id.
         :type old_id: int.
         """
-        old_chat = my_session.query(Chat).filter(Chat.id == old_id).one()
-        my_session.delete(old_chat)
-        my_session.commit()
+        old_chat = my_session.query(Chat).filter(Chat.id == old_id).one_or_none()
+        if old_chat is None:
+            logging.warning(f"SQLHandler: Duplicate remove of chat `{old_id}`.")
+        else:
+            my_session.delete(old_chat)
+            my_session.commit()
 
     @load_session
     @fun_logger(log_fun=logging.debug)

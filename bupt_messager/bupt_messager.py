@@ -29,6 +29,7 @@ class BUPTMessager(object):
         self.bot_handler.add_handler()
         self.log_folder = 'log'
         self._init_logger()
+        queued_bot.set_error_handle(self.bot_handler.bot_backend.error_collector)
         signal.signal(signal.SIGINT, self.stop)
         signal.signal(signal.SIGTERM, self.stop)
 

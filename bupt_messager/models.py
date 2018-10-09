@@ -1,6 +1,6 @@
 """Models representing SQL tables."""
 import datetime
-from sqlalchemy import BigInteger, Column, Date, DateTime, Integer, String, Text, ForeignKey
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, Integer, String, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func as sql_func
@@ -33,6 +33,19 @@ class Notification(Base):
     url = Column(Text)
     summary = Column(Text)
     time = Column(DateTime)
+    is_pushed = Column(Boolean, default=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'author': self.author,
+            'html': self.html,
+            'title': self.title,
+            'url': self.url,
+            'summary': self.summary,
+            'time': self.time,
+            'is_pushed': self.is_pushed,
+        }
 
     @property
     def datetime(self):

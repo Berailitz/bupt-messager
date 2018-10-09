@@ -11,5 +11,6 @@ CREATE TABLE `notification` (
   `title` varchar(80) NOT NULL,
   `url` text NOT NULL,
   `summary` text NOT NULL,
-  `date` date NOT NULL
+  `date` date NOT NULL,
+  `is_pushed` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

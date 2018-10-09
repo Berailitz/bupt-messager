@@ -192,3 +192,16 @@ class SQLHandler(object):
         my_session.add(new_status)
         my_session.commit()
         return new_status
+
+    @load_session
+    def get_unpushed_notices(my_session: Session) -> List[Notification]:
+        return my_session.query(Notification).filter(Notification.is_pushed.is_(False)).all()
+
+    @load_session
+    def mark_pushed(my_session: Session, notice_id: Notification):
+        old_notice = my_session.query(Notification).filter(Notification.id == notice_id).one_or_none()
+        if old_notice is None:
+            logging.warning(f"SQLHandler: Duplicate push of Notification `{old_notice}`.")
+        else:
+            old_notice.is_pushed = True
+            my_session.commit()

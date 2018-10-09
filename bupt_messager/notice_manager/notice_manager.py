@@ -55,7 +55,6 @@ class NoticeManager(threading.Thread):
         self.sql_handler = sql_handler
         self.bot_helper = BotHelper(self.sql_handler, bot)
         self._stop_event = threading.Event()
-        self.broadcast_queue = Queue()
 
     def run(self):
         """Main loop.
@@ -72,9 +71,9 @@ class NoticeManager(threading.Thread):
                 self.update(notice_dict_list)
                 if update_counter == BROADCAST_CYCLE:
                     update_counter = 0
-                    while not self.broadcast_queue.empty():
-                        new_notice_dict = self.broadcast_queue.get()
-                        self.bot_helper.broadcast_notice(new_notice_dict)
+                    for new_notice in self.sql_handler.get_unpushed_notices():
+                        self.bot_helper.broadcast_notice(new_notice.to_dict())
+                        self.sql_handler.mark_pushed(new_notice.id)
                 logging.info(f'NoticeManager: Sleep for {NOTICE_CHECK_INTERVAL} seconds.')
             except KeyboardInterrupt as identifier:
                 logging.warning('NoticeManager: Catch KeyboardInterrupt when logging in.')
@@ -104,7 +103,6 @@ class NoticeManager(threading.Thread):
         notice_counter = 0
         for notice_dict in notice_dict_list:
             self.sql_handler.insert_notice(notice_dict)
-            self.broadcast_queue.put(notice_dict)
             notice_counter += 1
         logging.info(f'{notice_counter} notifications inserted.')
         return notice_counter

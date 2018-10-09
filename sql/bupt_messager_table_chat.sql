@@ -6,5 +6,5 @@
 --
 
 CREATE TABLE `chat` (
-  `id` int(11) NOT NULL
+  `id` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -1,6 +1,6 @@
 """Models representing SQL tables."""
 import datetime
-from sqlalchemy import Column, Date, DateTime, Integer, String, Text, ForeignKey
+from sqlalchemy import BigInteger, Column, Date, DateTime, Integer, String, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func as sql_func
@@ -74,7 +74,7 @@ class Chat(Base):
         :type id: int.
     """
     __tablename__ = 'chat'
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
 
     def __repr__(self):
         return f"<Chat(id='{self.id}')>"

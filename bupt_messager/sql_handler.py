@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Callable, List
 from sqlalchemy import create_engine, exists
-from sqlalchemy.orm import relationship, scoped_session, sessionmaker
+from sqlalchemy.orm import joinedload, relationship, scoped_session, sessionmaker
 from sqlalchemy.orm.session import Session
 from .config import SQLALCHEMY_DATABASE_URI
 from .mess import fun_logger
@@ -117,7 +117,7 @@ class SQLHandler(object):
         :return: List of :obj:`Notice`s.
         :rtype: list.
         """
-        return my_session.query(Notification).order_by(Notification.time.desc())[start:][:length]
+        return my_session.query(Notification).options(joinedload('attachments')).order_by(Notification.time.desc()).all()[start:][:length]
 
     @load_session
     def get_chat_ids(my_session: Session) -> List[int]:
@@ -195,7 +195,7 @@ class SQLHandler(object):
 
     @load_session
     def get_unpushed_notices(my_session: Session) -> List[Notification]:
-        return my_session.query(Notification).filter(Notification.is_pushed.is_(False)).all()
+        return my_session.query(Notification).options(joinedload('attachments')).filter(Notification.is_pushed.is_(False)).all()
 
     @load_session
     def mark_pushed(my_session: Session, notice_id: Notification):

@@ -104,14 +104,14 @@ class BotBackend(object):
         """Send a notice when receiving command `/read {index}`.
         """
         index = try_int(args[0]) if args else 1
-        self.backend_helper.send_notice(bot, update.message, index - 1)
+        self.backend_helper.send_notice_by_index(bot, update.message.chat_id, index - 1)
 
     def read_callback(self, bot, update):
         """Send a notice when receiving callback `/read_{index}`.
         """
         args = self.backend_helper.prase_callback(update)
         index = try_int(args[0]) if args else 0
-        self.backend_helper.send_notice(bot, update.callback_query.message, index)
+        self.backend_helper.send_notice_by_index(bot, update.callback_query.message.chat_id, index)
         update.callback_query.answer()
 
     def error_collector(self, error: Exception, *, chat_id: int = None) -> None:

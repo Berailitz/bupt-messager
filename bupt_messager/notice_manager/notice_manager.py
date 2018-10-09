@@ -72,7 +72,7 @@ class NoticeManager(threading.Thread):
                 if update_counter == BROADCAST_CYCLE:
                     update_counter = 0
                     for new_notice in self.sql_handler.get_unpushed_notices():
-                        self.bot_helper.broadcast_notice(new_notice.to_dict())
+                        self.bot_helper.broadcast_notice(new_notice)
                         self.sql_handler.mark_pushed(new_notice.id)
                 logging.info(f'NoticeManager: Sleep for {NOTICE_CHECK_INTERVAL} seconds.')
             except KeyboardInterrupt as identifier:

@@ -6,8 +6,9 @@ import sys
 from typing import List
 import telegram
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup, Update
-from ..config import BOT_ADMIN_IDS, BOT_NOTICE_MAX_BUTTON_PER_LINE, BOT_RESTART_ARG_NO_ARG, BOT_START_VALID_ARGS
+from ..config import BOT_ADMIN_IDS, BOT_NOTICE_MAX_BUTTON_PER_LINE, BOT_RESTART_ARG_NO_ARG, BOT_START_VALID_ARGS, NO_NOTICE_TEXT
 from ..mess import fun_logger, get_arg, threaded
+from ..notice_helper import send_notice
 
 
 def admin_only(func):
@@ -87,29 +88,13 @@ class BackendHelper(object):
             menu.append(footer_buttons)
         return InlineKeyboardMarkup(menu)
 
-    def send_notice(self, bot, message: telegram.Message, index: int):
-        """Send a notice to a specific user.
-
-        :param bot: Current bot.
-        :type bot: telegram.bot.
-        :param message: Request received.
-        :type message: telegram.Message.
-        :param index: Index of the message to be sent.
-        :type index: int.
-        """
-        notice_list = self.sql_handler.get_latest_notices(length=1, start=index)
+    def send_notice_by_index(self, bot, chat_id: int, notice_index: int):
+        notice_list = self.sql_handler.get_latest_notices(length=1, start=notice_index)
         if notice_list:
-            target_notice = notice_list[0]
-            keyboard = [[InlineKeyboardButton('READ', target_notice.url)]]
-            menu_markup = InlineKeyboardMarkup(keyboard)
-            bot.send_message(
-                chat_id=message.chat_id,
-                text=f"*{target_notice.title}*\n{target_notice.summary}...({target_notice.datetime})",
-                reply_markup=menu_markup,
-                parse_mode=ParseMode.MARKDOWN
-            )
+            notice = notice_list[0]
+            send_notice(bot, chat_id, notice)
         else:
-            bot.send_message(chat_id=message.chat_id, text="No such notice.")
+            bot.send_message(chat_id=chat_id, text=NO_NOTICE_TEXT.format(notice_index=notice_index))
 
     def send_latest_notice(self, *, bot, message: telegram.Message, length: int, start: int = 0):
         """Send a list of notices.

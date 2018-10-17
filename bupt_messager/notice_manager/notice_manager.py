@@ -10,7 +10,7 @@ from typing import List
 from bs4 import BeautifulSoup
 from ..config import ATTACHMENT_NAME_LENGTH, BROADCAST_CYCLE, NOTICE_CHECK_INTERVAL, NOTICE_UPDATE_ERROR_SLEEP_TIME
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH, NOTICE_AUTHOR_LENGTH
-from ..config import STATUS_ERROR_DOWNLOAD, STATUS_SYNCED
+from ..config import STATUS_ERROR_DOWNLOAD, STATUS_SYNCED, PAGE_COUNTER_PER_UPDATE
 from ..mess import fun_logger
 from ..sql_handler import SQLHandler
 from .bot_helper import BotHelper
@@ -169,19 +169,22 @@ class NoticeManager(threading.Thread):
 
         :rtype: List[dict].
         """
-        notice_raw_list = self.download_notice_list_page()
         notice_list = list()
-        logging.info(f'{len(notice_raw_list)} notices detected.')
-        for notice_raw in notice_raw_list:
-            notice_dict = self.prase_notice(notice_raw)
-            if self.sql_handler.is_new_notice(notice_dict['id']):
-                logging.info(f"NoticeManager: Waiting for attachment of `{notice_dict['title']}`.")
-                time.sleep(NOTICE_DOWNLOAD_INTERVAL)
-                notice_dict['attachments'] = self.get_attachments(notice_dict['id'])
-                notice_list.append(notice_dict)
-                logging.info(f'NoticeManager: New notice fetched `{notice_dict["title"]}`.')
+        for page_index in range(PAGE_COUNTER_PER_UPDATE):
+            notice_raw_list = self.download_notice_list_page(page_index + 1)
+            logging.info(f'{len(notice_raw_list)} notice detected.')
+            for notice_raw in notice_raw_list:
+                notice_dict = self.prase_notice(notice_raw)
+                if self.sql_handler.is_new_notice(notice_dict['id']):
+                    logging.info(f"NoticeManager: Waiting for attachment of `{notice_dict['title']}`.")
+                    time.sleep(NOTICE_DOWNLOAD_INTERVAL)
+                    notice_dict['attachments'] = self.get_attachments(notice_dict['id'])
+                    notice_list.append(notice_dict)
+                    logging.info(f'NoticeManager: New notice fetched `{notice_dict["title"]}`.')
+                else:
+                    logging.info(f'NoticeManager: Duplicate notice `{notice_dict["title"]}`.')
             else:
-                logging.info(f'NoticeManager: Duplicate notice `{notice_dict["title"]}`.')
+                break
         logging.info('NoticeManager: Download finished.')
         return notice_list
 

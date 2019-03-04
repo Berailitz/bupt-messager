@@ -64,12 +64,12 @@ class NoticeManager(threading.Thread):
         while is_first_run or not self._stop_event.wait(NOTICE_CHECK_INTERVAL):
             update_counter += 1
             is_first_run = False
-            logging.info('NoticeManager: Updating.')
+            logging.info(f'NoticeManager: Updating. ({update_counter} / {BROADCAST_CYCLE})')
             self.http_client.refresh_session()
             try:
                 notice_dict_list = self._doanload_notice()
                 self.update(notice_dict_list)
-                if update_counter == BROADCAST_CYCLE:
+                if update_counter >= BROADCAST_CYCLE:
                     update_counter = 0
                     for new_notice in self.sql_handler.get_unpushed_notices():
                         self.bot_helper.broadcast_notice(new_notice)

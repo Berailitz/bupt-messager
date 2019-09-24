@@ -75,3 +75,4 @@ class BUPTMessager(object):
         if not self.no_spider_mode:
             self.notice_manager.stop()
             self.notice_manager.join()
+        self.bot_handler.stop_queue()

@@ -14,6 +14,7 @@ class BotHandler(object):
     :type updater: telegram.ext.Updater.
     """
     def __init__(self, sql_manager=None, bot=None):
+        self.bot = bot
         self.updater = Updater(bot=bot) if bot else None
         self.bot_backend = BotBackend(
             sql_handler=SQLHandler(sql_manager=sql_manager),
@@ -69,4 +70,9 @@ class BotHandler(object):
         """
         logging.info('Bot: stopping')
         self.updater.stop()
+        self.stop_bot()
         logging.info('Bot: stopped.')
+
+    def stop_bot(self):
+        """Stop the queued bot."""
+        self.bot.stop()

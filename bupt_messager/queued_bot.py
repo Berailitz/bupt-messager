@@ -60,6 +60,10 @@ class QueuedBot(telegram.bot.Bot):
             else:
                 raise identifier
 
+    def stop(self):
+        """Stop the message queue."""
+        self._msg_queue.stop()
+
 
 def create_queued_bot():
     """Factorial function to create queued bot.

@@ -43,7 +43,7 @@ class BUPTMessager(object):
         else:
             log_filename = f'bupt_messager_{os.getpid()}.log'
             log_path = os.path.join(self.log_folder, log_filename)
-            set_logger(log_path, console_level=logging.INFO, file_level=logging.INFO)
+            set_logger(log_path, console_level=logging.INFO, file_level=logging.DEBUG)
 
     def start(self):
         """Start messager, reading attributes `*_mode`.

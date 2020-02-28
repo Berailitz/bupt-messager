@@ -151,6 +151,7 @@ class NoticeManager(threading.Thread):
             notice_response = self.http_client.get(
                 f'https://webapp.bupt.edu.cn/extensions/wap/news/get-list.html?p={page_index}&type=tzgg'
             )
+            logging.debug(f'Download HTML: `{notice_response.text}`')
             notice_data = json.loads(notice_response.text)
             if notice_data['m'] == '操作成功':
                 return [
@@ -176,13 +177,13 @@ class NoticeManager(threading.Thread):
             for notice_raw in notice_raw_list:
                 notice_dict = self.prase_notice(notice_raw)
                 if self.sql_handler.is_new_notice(notice_dict['id']):
-                    logging.info(f"NoticeManager: Waiting for attachment of `{notice_dict['title']}`.")
+                    logging.info(f"NoticeManager: Waiting for attachment of `{notice_dict['title']}`@`{notice_dict['id']}`.")
                     time.sleep(NOTICE_DOWNLOAD_INTERVAL)
                     notice_dict['attachments'] = self.get_attachments(notice_dict['id'])
                     notice_list.append(notice_dict)
-                    logging.info(f'NoticeManager: New notice fetched `{notice_dict["title"]}`.')
+                    logging.info(f"NoticeManager: New notice fetched `{notice_dict['title']}`@`{notice_dict['id']}`.")
                 else:
-                    logging.info(f'NoticeManager: Duplicate notice `{notice_dict["title"]}`.')
+                    logging.info(f"NoticeManager: Duplicate notice `{notice_dict['title']}`@`{notice_dict['id']}`.")
             else:
                 break
         logging.info('NoticeManager: Download finished.')

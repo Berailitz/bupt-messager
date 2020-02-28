@@ -88,13 +88,12 @@ class BackendHelper(object):
             menu.append(footer_buttons)
         return InlineKeyboardMarkup(menu)
 
-    def send_notice_by_index(self, bot, chat_id: int, notice_index: int):
-        notice_list = self.sql_handler.get_latest_notices(length=1, start=notice_index)
-        if notice_list:
-            notice = notice_list[0]
-            send_notice(bot, chat_id, notice)
+    def send_notice_by_id(self, bot, chat_id: int, notice_id: str):
+        notice_item = self.sql_handler.get_notice(notice_id)
+        if notice_item is None:
+            bot.send_message(chat_id=chat_id, text=NO_NOTICE_TEXT.format(notice_index=notice_id))
         else:
-            bot.send_message(chat_id=chat_id, text=NO_NOTICE_TEXT.format(notice_index=notice_index))
+            send_notice(bot, chat_id, notice_item)
 
     def send_latest_notice(self, *, bot, message: telegram.Message, length: int, start: int = 0):
         """Send a list of notices.
@@ -110,7 +109,7 @@ class BackendHelper(object):
         buttons = []
         for index, notice in enumerate(self.sql_handler.get_latest_notices(length=length, start=start)):
             text += f'{index + 1}.[{notice.title}]({notice.url})({notice.datetime})\n'
-            buttons.append(InlineKeyboardButton(text=f'{index + 1}', callback_data=f'read_{start + index}'))
+            buttons.append(InlineKeyboardButton(text=f'{index + 1}', callback_data=f'read_{notice.id}'))
         keyboard = self.markup_keyboard(
             buttons=buttons,
             width=BOT_NOTICE_MAX_BUTTON_PER_LINE,

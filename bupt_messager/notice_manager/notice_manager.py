@@ -144,7 +144,8 @@ class NoticeManager(threading.Thread):
         notice_dict['author'] = notice_raw['author'][:NOTICE_AUTHOR_LENGTH]
         notice_dict['id'] = notice_raw['id']
         notice_dict['html'] = notice_raw['text'].replace('&nbsp;', '')
-        notice_dict['summary'] = notice_raw['desc'].replace('&nbsp;', '')[:NOTICE_DB_SUMMARY_LENGTH]
+        notice_soup = BeautifulSoup(notice_dict['html'], 'lxml')
+        notice_dict['summary'] = notice_soup.text.replace(u'\xa0', u' ')[:NOTICE_DB_SUMMARY_LENGTH]
         notice_dict['time'] = datetime.datetime.fromtimestamp(int(notice_raw['created']))
         notice_dict['title'] = notice_raw['title'].replace('&nbsp;', '')[:NOTICE_TITLE_LENGTH]
         notice_dict['url'] = f'https://webapp.bupt.edu.cn/extensions/wap/news/detail.html?id={notice_raw["id"]}&classify_id=tzgg'

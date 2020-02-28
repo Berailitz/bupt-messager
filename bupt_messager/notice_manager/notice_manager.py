@@ -55,6 +55,7 @@ class NoticeManager(threading.Thread):
         self.http_client = http_client or HTTPClient()
         self.sql_handler = sql_handler
         self.bot_helper = BotHelper(self.sql_handler, bot)
+        self.bot = bot
         self._stop_event = threading.Event()
 
     def run(self):
@@ -85,6 +86,7 @@ class NoticeManager(threading.Thread):
             except Exception as identifier:
                 logging.exception(identifier)
                 logging.error(f'NoticeManager: Error occured when updating: {identifier}')
+                self.bot.send_error_report()
                 logging.info(f'NoticeManager: Sleep for {NOTICE_UPDATE_ERROR_SLEEP_TIME} seconds.')
                 if self._stop_event.wait(NOTICE_UPDATE_ERROR_SLEEP_TIME):
                     break

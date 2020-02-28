@@ -1,9 +1,11 @@
 """Telegram bot with message queue."""
 import logging
+import traceback
 from typing import Callable
 import telegram.bot
+from telegram import ParseMode
 from telegram.ext import messagequeue
-from .config import BOT_ALL_BURST_LIMIT, BOT_GROUP_BURST_LIMIT, BOT_TOKEN, PROXY_URL
+from .config import BOT_ADMIN_IDS, BOT_ALL_BURST_LIMIT, BOT_GROUP_BURST_LIMIT, BOT_TOKEN, PROXY_URL
 
 
 class QueuedBot(telegram.bot.Bot):
@@ -59,6 +61,21 @@ class QueuedBot(telegram.bot.Bot):
                 self.error_handle(identifier, chat_id=chat_id)
             else:
                 raise identifier
+
+    def send_error_report(self):
+        """Send error report to all admins.
+
+        :param bot: Current bot.
+        :type bot: telegram.bot.
+        :param notice: Notification to be sent.
+        :param index: Index of the message to be sent.
+        """
+        error_text = f'```\n{traceback.format_exc()}```'
+        for admin_chat_id in BOT_ADMIN_IDS:
+            self.send_message(
+                chat_id=admin_chat_id,
+                text=error_text,
+                parse_mode=ParseMode.MARKDOWN)
 
     def stop(self):
         """Stop the message queue."""

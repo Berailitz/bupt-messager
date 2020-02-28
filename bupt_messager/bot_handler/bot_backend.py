@@ -115,7 +115,7 @@ class BotBackend(object):
         self.backend_helper.send_notice_by_index(bot, update.callback_query.message.chat_id, index)
         update.callback_query.answer()
 
-    def error_collector(self, error: Exception, *, chat_id: int = None) -> None:
+    def error_collector(self, bot, error: Exception, *, chat_id: int = None) -> None:
         try:
             raise error
         except Unauthorized:
@@ -143,11 +143,12 @@ class BotBackend(object):
             logging.error(f"Unknown Telegram error. (chat_id=`{chat_id}`)")
             logging.exception(error)
         except Exception as identifier:
+            bot.send_error_report()
             raise identifier
 
     def error_callback(self, bot, update, error: Exception):
         chat_id = update.message.chat_id
-        self.error_collector(error, chat_id=chat_id)
+        self.error_collector(bot, error, chat_id=chat_id)
 
     @staticmethod
     def unknown_command(bot, update):

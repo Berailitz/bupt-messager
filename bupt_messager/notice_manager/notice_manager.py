@@ -12,6 +12,7 @@ from ..config import ATTACHMENT_NAME_LENGTH, BROADCAST_CYCLE, NOTICE_CHECK_INTER
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH, NOTICE_AUTHOR_LENGTH
 from ..config import STATUS_ERROR_DOWNLOAD, STATUS_SYNCED, PAGE_COUNTER_PER_UPDATE
 from ..mess import fun_logger
+from ..models import Notification
 from ..sql_handler import SQLHandler
 from .bot_helper import BotHelper
 from .http_client import HTTPClient
@@ -72,7 +73,10 @@ class NoticeManager(threading.Thread):
                 if update_counter >= BROADCAST_CYCLE:
                     update_counter = 0
                     for new_notice in self.sql_handler.get_unpushed_notices():
-                        self.bot_helper.broadcast_notice(new_notice)
+                        if self.is_notice_valid(new_notice):
+                            self.bot_helper.broadcast_notice(new_notice)
+                        else:
+                            logging.warning(f'Invalid notice `{new_notice}`.')
                         self.sql_handler.mark_pushed(new_notice.id)
                 logging.info(f'NoticeManager: Sleep for {NOTICE_CHECK_INTERVAL} seconds.')
             except KeyboardInterrupt as identifier:
@@ -86,6 +90,10 @@ class NoticeManager(threading.Thread):
                     break
         logging.info('NoticeManager: Stopped.')
         self._stop_event.clear()
+
+    def is_notice_valid(self, new_notice: Notification) -> bool:
+        notice_soup = BeautifulSoup(self.http_client.get(new_notice.url).text, 'lxml')
+        return notice_soup.select_one('title').text != ''
 
     def stop(self):
         """Stop manager thread by setting :attr:`_stop_event`.

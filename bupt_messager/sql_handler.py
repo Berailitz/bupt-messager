@@ -131,7 +131,7 @@ class SQLHandler(object):
         return [chat.id for chat in my_session.query(Chat).all()]
 
     @load_session
-    def insert_chat(my_session: Session, new_id: int):
+    def insert_chat(my_session: Session, new_id: int) -> int:
         """Insert chat id.
 
         :param my_session: Current session.
@@ -143,7 +143,7 @@ class SQLHandler(object):
             new_chat = Chat(id=new_id)
             my_session.add(new_chat)
             my_session.commit()
-            return new_chat
+            return new_id
         return None
 
     @load_session

@@ -40,9 +40,10 @@ class BotBackend(object):
         """Say Welcome when receiving command `/start`.
         """
         bot.send_message(chat_id=update.message.chat_id, text="Welcome.")
-        insert_result = self.sql_handler.insert_chat(update.message.chat_id)
-        if insert_result is not None:
-            logging.info(f'BotBackend.start_command: new chat `{insert_result.id}`.')
+        logging.info(f'Started by chat `{update.message.chat_id}`.')
+        insert_result_id = self.sql_handler.insert_chat(update.message.chat_id)
+        if insert_result_id is not None:
+            logging.info(f'BotBackend.start_command: new chat `{insert_result_id}`.')
 
     def latest_command(self, bot, update, args):
         """Say latest notices when receiving command `/latest {length}`.

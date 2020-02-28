@@ -9,7 +9,7 @@ from queue import Queue
 from typing import List
 from bs4 import BeautifulSoup
 from ..config import ATTACHMENT_NAME_LENGTH, BROADCAST_CYCLE, NOTICE_CHECK_INTERVAL, NOTICE_UPDATE_ERROR_SLEEP_TIME
-from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH, NOTICE_AUTHOR_LENGTH
+from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_DB_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH, NOTICE_AUTHOR_LENGTH
 from ..config import STATUS_ERROR_DOWNLOAD, STATUS_SYNCED, PAGE_COUNTER_PER_UPDATE
 from ..mess import fun_logger
 from ..models import Notification
@@ -144,7 +144,7 @@ class NoticeManager(threading.Thread):
         notice_dict['author'] = notice_raw['author'][:NOTICE_AUTHOR_LENGTH]
         notice_dict['id'] = notice_raw['id']
         notice_dict['html'] = notice_raw['text'].replace('&nbsp;', '')
-        notice_dict['summary'] = notice_raw['desc'].replace('&nbsp;', '')[:NOTICE_SUMMARY_LENGTH]
+        notice_dict['summary'] = notice_raw['desc'].replace('&nbsp;', '')[:NOTICE_DB_SUMMARY_LENGTH]
         notice_dict['time'] = datetime.datetime.fromtimestamp(int(notice_raw['created']))
         notice_dict['title'] = notice_raw['title'].replace('&nbsp;', '')[:NOTICE_TITLE_LENGTH]
         notice_dict['url'] = f'https://webapp.bupt.edu.cn/extensions/wap/news/detail.html?id={notice_raw["id"]}&classify_id=tzgg'

@@ -3,7 +3,7 @@ import functools
 import logging
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Callable, List
+from typing import Callable, List, Union
 from sqlalchemy import create_engine, exists
 from sqlalchemy.orm import joinedload, relationship, scoped_session, sessionmaker
 from sqlalchemy.orm.session import Session
@@ -102,6 +102,20 @@ class SQLHandler(object):
         my_session.add(new_notice)
         my_session.commit()
         return new_notice
+
+    @load_session
+    @fun_logger(log_fun=logging.debug)
+    def get_notice(my_session: Session, notice_id: str) -> Union[Notification, None]:
+        """Retrive one notice.
+
+        :param my_session: Cureent session.
+        :type my_session: Session.
+        :param notice_id: ID of the notice_id.
+        :type notice_id: str.
+        :return: The notice.
+        :rtype: Notification or None.
+        """
+        return my_session.query(Notification).options(joinedload('attachments')).filter(Notification.id == notice_id).one_or_none()
 
     @load_session
     @fun_logger(log_fun=logging.debug)

@@ -2,6 +2,7 @@ import argparse
 import time
 import logging
 from pathlib import Path
+from telegram import ParseMode
 from bupt_messager.bupt_messager import BUPTMessager
 from bupt_messager.mess import set_logger
 
@@ -19,9 +20,9 @@ def main():
     else:
         chat_ids = messager.notice_manager.bot_helper.sql_handler.get_chat_ids()
     bot = messager.notice_manager.bot_helper.bot
-    logging.warning(f'Broadcast to {len(chat_ids)} subscribers.')
+    logging.warning(f'Broadcast to {len(chat_ids)} subscribers: `{text}`.')
     for chat_id in chat_ids:
-        bot.send_message(chat_id=chat_id, text=text)
+        bot.send_message(chat_id=chat_id, text=text, parse_mode=ParseMode.MARKDOWN)
     messager.stop()
 
 

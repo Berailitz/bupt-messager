@@ -41,5 +41,5 @@ STATUS_ERROR_LOGIN_AUTH = 2
 STATUS_ERROR_DOWNLOAD = 3
 MESSAGE_ABOUT_ME = "I'm a bot that forwards notifications." + \
     " 🍴 me at [https://github.com/Berailitz/bupt-messager](https://github.com/Berailitz/bupt-messager)."
-NOTICE_TEXT = "*{title}*\n{summary}...({datetime})"
+NOTICE_TEXT = "*{title}*\n{summary}...(`{id}`@{datetime})"
 NO_NOTICE_TEXT = "No such notice '{notice_index}'."

@@ -117,22 +117,29 @@ class NoticeManager(threading.Thread):
         logging.info(f'{notice_counter} notifications inserted.')
         return notice_counter
 
-    def get_attachments(self, notice_id: str):
+    def get_attachments(self, notice_dict: dict):
         """Fetch attachment info.
 
         :return: List of attachment dicts.
         :rtype: list.
         """
+        notice_id = notice_dict['id']
         detail_soup = BeautifulSoup(
             self.http_client.get(
                 f'https://webapp.bupt.edu.cn/extensions/wap/news/detail.html?id={notice_id}&classify_id=tzgg'
             ).text, 'lxml')
-        return [{
-            'name': attachement_label.text[:ATTACHMENT_NAME_LENGTH],
+        official_attachments = [{
+            'name': attachment_label.text[:ATTACHMENT_NAME_LENGTH],
             'notice_id': notice_id,
-            'url': attachement_label['href']
-        } for attachement_label in detail_soup.select(
-            '#container > section > ul > div > p > a')]
+            'url': attachment_label['href']
+        } for attachment_label in detail_soup.select('#container > section > ul > div > p > a')]
+        body_soup = BeautifulSoup(notice_dict['html'], 'lxml')
+        image_attachments = [{
+            'name': img_label['alt'][:ATTACHMENT_NAME_LENGTH] if 'alt' in img_label.attrs.keys() else '图片',
+            'notice_id': notice_id,
+            'url': img_label['src']
+        } for img_label in body_soup.select('img')]
+        return official_attachments + image_attachments
 
     def prase_notice(self, notice_raw: dict):
         """Form a notice dict, without attachment. Generate summary, cut title and link attachments.
@@ -190,7 +197,7 @@ class NoticeManager(threading.Thread):
                 if self.sql_handler.is_new_notice(notice_dict['id']):
                     logging.info(f"NoticeManager: Waiting for attachment of `{notice_dict['title']}`@`{notice_dict['id']}`.")
                     time.sleep(NOTICE_DOWNLOAD_INTERVAL)
-                    notice_dict['attachments'] = self.get_attachments(notice_dict['id'])
+                    notice_dict['attachments'] = self.get_attachments(notice_dict)
                     notice_list.append(notice_dict)
                     logging.info(f"NoticeManager: New notice fetched `{notice_dict['title']}`@`{notice_dict['id']}`.")
                 else:

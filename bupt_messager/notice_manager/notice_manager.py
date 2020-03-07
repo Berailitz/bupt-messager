@@ -10,7 +10,7 @@ from typing import List
 from bs4 import BeautifulSoup
 from ..config import ATTACHMENT_NAME_LENGTH, BROADCAST_CYCLE, NOTICE_CHECK_INTERVAL, NOTICE_UPDATE_ERROR_SLEEP_TIME
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_DB_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH, NOTICE_AUTHOR_LENGTH
-from ..config import STATUS_ERROR_DOWNLOAD, STATUS_SYNCED, PAGE_COUNTER_PER_UPDATE
+from ..config import STATUS_ERROR_DOWNLOAD, STATUS_SYNCED, PAGE_COUNTER_PER_UPDATE, NOTICE_MESSAGE_SUMMARY_LENGTH
 from ..mess import fun_logger
 from ..models import Notification
 from ..sql_handler import SQLHandler
@@ -199,7 +199,7 @@ class NoticeManager(threading.Thread):
                     time.sleep(NOTICE_DOWNLOAD_INTERVAL)
                     notice_dict['attachments'] = self.get_attachments(notice_dict)
                     notice_list.append(notice_dict)
-                    logging.info(f"NoticeManager: New notice fetched `{notice_dict['title']}`@`{notice_dict['id']}`.")
+                    logging.info(f"NoticeManager: New notice fetched `{notice_dict['title']}({notice_dict['id']})`: {notice_dict['summary'][:NOTICE_MESSAGE_SUMMARY_LENGTH]}.")
                 else:
                     logging.info(f"NoticeManager: Duplicate notice `{notice_dict['title']}`@`{notice_dict['id']}`.")
             else:

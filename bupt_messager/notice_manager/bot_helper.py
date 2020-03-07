@@ -1,7 +1,7 @@
 """Tools for the bot."""
 import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
-from ..models import Notification
+from ..models import Notification, SubscriberChannel
 from ..notice_helper import send_notice
 
 
@@ -19,12 +19,12 @@ class BotHelper(object):
     def init_sql_handle(self, sql_handler=None):
         self.sql_handler = sql_handler
 
-    def broadcast_notice(self, notice: Notification):
+    def broadcast_notice(self, notice: Notification, channel: SubscriberChannel = SubscriberChannel.AllChannel):
         """Broadcast new notification to all user.
 
         :param notice: New notification.
         """
-        chat_id_list = self.sql_handler.get_chat_ids()
-        logging.info(f'BotHelper: Broadcast to {len(chat_id_list)} subscribers.')
+        chat_id_list = self.sql_handler.get_chat_ids(channel)
+        logging.info(f'BotHelper: Broadcast to {len(chat_id_list)} subscribers, {channel}.')
         for chat_id in chat_id_list:
             send_notice(self.bot, chat_id, notice)

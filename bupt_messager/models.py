@@ -88,9 +88,10 @@ class Chat(Base):
     """
     __tablename__ = 'chat'
     id = Column(BigInteger, primary_key=True)
+    is_insider = Column(Boolean, default=False)
 
     def __repr__(self):
-        return f"<Chat(id='{self.id}')>"
+        return f"<Chat(id='{self.id}', is_insider={self.is_insider})>"
 
 
 class Status(Base):

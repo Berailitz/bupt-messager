@@ -44,3 +44,5 @@ MESSAGE_ABOUT_ME = "I'm a bot that forwards notifications." + \
 NOTICE_TEXT = "*{title}*\n{summary}...(`{id}`@{datetime})"
 NO_NOTICE_TEXT = "No such notice '{notice_index}'."
 ERROR_NOTICE_TEXT = "Oops...something was wrong."
+INSIDER_JOIN_NOTICE_TEXT = "You are an Insider now."
+INSIDER_LEAVE_NOTICE_TEXT = "You are not an Insider now."

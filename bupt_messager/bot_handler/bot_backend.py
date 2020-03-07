@@ -5,6 +5,7 @@ from telegram import ParseMode
 from telegram.error import TelegramError, Unauthorized, BadRequest, TimedOut, ChatMigrated, NetworkError
 from ..config import BOT_NOTICE_LIST_LENGTH, BOT_STATUS_LIST_LENGTH, BOT_STATUS_STATISTIC_HOUR
 from ..config import MESSAGE_ABOUT_ME, STATUS_SYNCED, ERROR_NOTICE_TEXT
+from ..config import INSIDER_JOIN_NOTICE_TEXT, INSIDER_LEAVE_NOTICE_TEXT
 from ..mess import try_int
 from .backend_helper import admin_only, BackendHelper
 
@@ -70,6 +71,20 @@ class BotBackend(object):
         """Say yo notices when receiving command `/yo`.
         """
         bot.send_message(chat_id=update.message.chat_id, text='Yo~')
+
+    def insider_command(self, bot, update):
+        """Say yo notices when receiving command `/yo`.
+        """
+        insider_state = self.sql_handler.toggle_insider(update.message.chat_id)
+        if insider_state is None:
+            logging.warning(f'BotBackend: command error `{update.effective_user.name}:{update.message.chat_id}`.')
+            bot.send_message(chat_id=update.message.chat_id, text=ERROR_NOTICE_TEXT)
+        elif insider_state:
+            logging.warning(f'BotBackend: insider join `{update.effective_user.name}:{update.message.chat_id}`.')
+            bot.send_message(chat_id=update.message.chat_id, text=INSIDER_JOIN_NOTICE_TEXT)
+        else:
+            logging.warning(f'BotBackend: insider leave `{update.effective_user.name}:{update.message.chat_id}`.')
+            bot.send_message(chat_id=update.message.chat_id, text=INSIDER_LEAVE_NOTICE_TEXT)
 
     @admin_only
     def restart_command(self, bot, update, args):

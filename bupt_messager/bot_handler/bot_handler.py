@@ -47,6 +47,8 @@ class BotHandler(object):
         dispatcher.add_handler(read_callback)
         yo_handler = CommandHandler('yo', self.bot_backend.yo_command)
         dispatcher.add_handler(yo_handler)
+        insider_handler = CommandHandler('insider', self.bot_backend.insider_command)
+        dispatcher.add_handler(insider_handler)
         restart_handler = CommandHandler('restart', self.bot_backend.restart_command, pass_args=True)
         dispatcher.add_handler(restart_handler)
         unknown_handler = MessageHandler(Filters.command, self.bot_backend.unknown_command)

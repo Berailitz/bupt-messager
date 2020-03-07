@@ -219,3 +219,14 @@ class SQLHandler(object):
         else:
             old_notice.is_pushed = True
             my_session.commit()
+
+    @load_session
+    def toggle_insider(my_session: Session, chat_id: int) -> Union[None, bool]:
+        chat = my_session.query(Chat).filter(Chat.id == chat_id).one_or_none()
+        if chat is None:
+            logging.warning(f"SQLHandler: No such chat `{chat_id}`.")
+            return None
+        else:
+            chat.is_insider = not chat.is_insider
+            my_session.commit()
+            return chat.is_insider

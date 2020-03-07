@@ -12,7 +12,7 @@ from ..config import ATTACHMENT_NAME_LENGTH, BROADCAST_CYCLE, NOTICE_CHECK_INTER
 from ..config import NOTICE_DOWNLOAD_INTERVAL, NOTICE_DB_SUMMARY_LENGTH, NOTICE_TITLE_LENGTH, NOTICE_AUTHOR_LENGTH
 from ..config import STATUS_ERROR_DOWNLOAD, STATUS_SYNCED, PAGE_COUNTER_PER_UPDATE, NOTICE_MESSAGE_SUMMARY_LENGTH
 from ..mess import fun_logger
-from ..models import Notification
+from ..models import Notification, SubscriberChannel
 from ..sql_handler import SQLHandler
 from .bot_helper import BotHelper
 from .http_client import HTTPClient
@@ -70,12 +70,14 @@ class NoticeManager(threading.Thread):
             self.http_client.refresh_session()
             try:
                 notice_dict_list = self._doanload_notice()
-                self.update(notice_dict_list)
+                notice_items = self.update(notice_dict_list)
+                for notice in notice_items:
+                    self.bot_helper.broadcast_notice(notice, SubscriberChannel.InsiderChannel)
                 if update_counter >= BROADCAST_CYCLE:
                     update_counter = 0
                     for new_notice in self.sql_handler.get_unpushed_notices():
                         if self.is_notice_valid(new_notice):
-                            self.bot_helper.broadcast_notice(new_notice)
+                            self.bot_helper.broadcast_notice(new_notice, SubscriberChannel.NormalChannel)
                         else:
                             logging.warning(f'Invalid notice `{new_notice}`.')
                         self.sql_handler.mark_pushed(new_notice.id)
@@ -104,18 +106,17 @@ class NoticeManager(threading.Thread):
         logging.info('NoticeManager: Set stop signal.')
 
     @change_status(ok_status=STATUS_SYNCED)
-    def update(self, notice_dict_list) -> int:
+    def update(self, notice_dict_list) -> List[Notification]:
         """Fetch new notice.
 
         :return: Amount of new notice.
         :rtype: int.
         """
-        notice_counter = 0
+        notice_items = []
         for notice_dict in notice_dict_list:
-            self.sql_handler.insert_notice(notice_dict)
-            notice_counter += 1
-        logging.info(f'{notice_counter} notifications inserted.')
-        return notice_counter
+            notice_items.append(self.sql_handler.insert_notice(notice_dict))
+        logging.info(f'{len(notice_items)} notifications inserted.')
+        return notice_items
 
     def get_attachments(self, notice_dict: dict):
         """Fetch attachment info.

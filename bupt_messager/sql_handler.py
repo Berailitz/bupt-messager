@@ -101,7 +101,7 @@ class SQLHandler(object):
         logging.info(f'SQLHandler: Adding notice `{new_notice.title}` with {len(attachment_list)} attachments.')
         my_session.add(new_notice)
         my_session.commit()
-        return new_notice
+        return my_session.query(Notification).options(joinedload('attachments')).filter(Notification.id == notice_dict['id']).one_or_none()
 
     @load_session
     @fun_logger(log_fun=logging.debug)

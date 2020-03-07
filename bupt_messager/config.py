@@ -43,3 +43,4 @@ MESSAGE_ABOUT_ME = "I'm a bot that forwards notifications." + \
     " 🍴 me at [https://github.com/Berailitz/bupt-messager](https://github.com/Berailitz/bupt-messager)."
 NOTICE_TEXT = "*{title}*\n{summary}...(`{id}`@{datetime})"
 NO_NOTICE_TEXT = "No such notice '{notice_index}'."
+ERROR_NOTICE_TEXT = "Oops...something was wrong."

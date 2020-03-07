@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from telegram import ParseMode
 from telegram.error import TelegramError, Unauthorized, BadRequest, TimedOut, ChatMigrated, NetworkError
 from ..config import BOT_NOTICE_LIST_LENGTH, BOT_STATUS_LIST_LENGTH, BOT_STATUS_STATISTIC_HOUR
-from ..config import MESSAGE_ABOUT_ME, STATUS_SYNCED
+from ..config import MESSAGE_ABOUT_ME, STATUS_SYNCED, ERROR_NOTICE_TEXT
 from ..mess import try_int
 from .backend_helper import admin_only, BackendHelper
 
@@ -137,11 +137,11 @@ class BotBackend(object):
             logging.warning(f"Chat migrated detected, from `{chat_id}` to `{error.new_chat_id}`.")
             self.sql_handler.remove_chat(chat_id)
             self.sql_handler.insert_chat(error.new_chat_id)
-        except TelegramError:
-            logging.error(f"Unknown Telegram error. (chat_id=`{chat_id}`)")
-            logging.exception(error)
         except Exception as identifier:
+            logging.error(f"Unknown error. (chat_id=`{chat_id}`)")
+            logging.exception(error)
             bot.send_error_report()
+            bot.send_message(chat_id=chat_id, text=ERROR_NOTICE_TEXT)
             raise identifier
 
     def error_callback(self, bot, update, error: Exception):

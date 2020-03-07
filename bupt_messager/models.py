@@ -1,5 +1,6 @@
 """Models representing SQL tables."""
 import datetime
+from enum import Enum
 from sqlalchemy import BigInteger, Boolean, Column, DateTime, Integer, String, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -7,6 +8,12 @@ from sqlalchemy.sql import func as sql_func
 from .config import STATUS_TEXT_DICT
 
 Base = declarative_base()
+
+
+class SubscriberChannel(Enum):
+    AllChannel = 0
+    NormalChannel = 1
+    InsiderChannel = 2
 
 
 class Notification(Base):

@@ -9,7 +9,7 @@ from sqlalchemy.orm import joinedload, relationship, scoped_session, sessionmake
 from sqlalchemy.orm.session import Session
 from .config import SQLALCHEMY_DATABASE_URI
 from .mess import fun_logger
-from .models import Attachment, Base, Chat, Notification, Status
+from .models import Attachment, Base, Chat, Notification, Status, SubscriberChannel
 
 
 class SQLManager(object):
@@ -134,15 +134,22 @@ class SQLHandler(object):
         return my_session.query(Notification).options(joinedload('attachments')).order_by(Notification.time.desc()).all()[start:][:length]
 
     @load_session
-    def get_chat_ids(my_session: Session) -> List[int]:
+    def get_chat_ids(my_session: Session, channel: SubscriberChannel = SubscriberChannel.AllChannel) -> List[int]:
         """Retrive all chat ids.
 
         :param my_session: Current session.
         :type my_session: Session.
+        :param channel: User channel.
+        :type channel: SubscriberChannel, `all`(default), `normal`, `insider`.
         :return: List of `id`s.
         :rtype: List[int].
         """
-        return [chat.id for chat in my_session.query(Chat).all()]
+        if channel == SubscriberChannel.NormalChannel:
+            return [chat.id for chat in my_session.query(Chat).filter(Chat.is_insider==False).all()]
+        elif channel == SubscriberChannel.InsiderChannel:
+            return [chat.id for chat in my_session.query(Chat).filter(Chat.is_insider==True).all()]
+        else:
+            return [chat.id for chat in my_session.query(Chat).all()]
 
     @load_session
     def insert_chat(my_session: Session, new_id: int) -> int:
